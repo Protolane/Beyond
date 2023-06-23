@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
+    "wsa-connect": "adb connect 127.0.0.1:58526",
+    "preandroid": "npm run wsa-connect",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",

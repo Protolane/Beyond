@@ -55,7 +55,14 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
               >
                 <Avatar.Image size={64} source={{ uri: personDetails?.person_view?.person.avatar }} />
               </View>
-              <Text variant="titleSmall">
+              <Text
+                variant="titleSmall"
+                style={{
+                  textShadowColor: 'white',
+                  textShadowOffset: { width: -1, height: 1 },
+                  textShadowRadius: 10,
+                }}
+              >
                 {selectedAccount ? `@${selectedAccount.username}@${selectedAccount.instance}` : 'Anonymous'}
               </Text>
             </View>
