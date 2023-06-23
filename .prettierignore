@@ -1,0 +1,6 @@
+.next
+build
+.vscode
+.idea
+.expo
+tsconfig.json

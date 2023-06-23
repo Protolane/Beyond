@@ -1,0 +1,3 @@
+{
+  "extends": "./src/eslint-config-react/index.js"
+}
