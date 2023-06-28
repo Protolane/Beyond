@@ -1,11 +1,11 @@
-﻿import { usePostsStore } from '../../stores/PostsStore';
-import { useDialog } from '../../core/dialog/hooks/useDialog';
-import { SortTypes, SortTypesIcons, SortTypesLabels } from '../../core/consts';
+﻿import { useDialog } from '../../core/dialog/hooks/useDialog';
+import { CommentSortTypes, CommentSortTypesIcons, CommentSortTypesLabels } from '../../core/consts';
 import React from 'react';
 import { SortOption } from '../components/Post/SortOption';
+import { useCommentsStore } from '../../stores/CommentsStore';
 
-export function useSortPostsDialog() {
-  const { sort, setSort } = usePostsStore(state => ({
+export function useSortCommentsDialog() {
+  const { sort, setSort } = useCommentsStore(state => ({
     sort: state.sort,
     setSort: state.setSort,
   }));
@@ -13,11 +13,11 @@ export function useSortPostsDialog() {
   const { showDialog, hideDialog, component } = useDialog({
     content: (
       <>
-        {SortTypes.map(sortType => (
+        {CommentSortTypes.map(sortType => (
           <SortOption
             key={sortType}
-            icon={SortTypesIcons[sortType]}
-            label={SortTypesLabels[sortType]}
+            icon={CommentSortTypesIcons[sortType]}
+            label={CommentSortTypesLabels[sortType]}
             selected={sortType === sort}
             onPress={() => {
               setSort(sortType);

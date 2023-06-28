@@ -3,13 +3,22 @@ import { getHeaderTitle } from '@react-navigation/elements';
 import React from 'react';
 import type { DrawerHeaderProps } from '@react-navigation/drawer';
 import { StyleSheet, View } from 'react-native';
-import { APP_NAME, ListingTypes, ListingTypesLabels, SortTypesLabels } from '../../../core/consts';
+import {
+  APP_NAME,
+  CommentSortTypesLabels,
+  ListingTypes,
+  ListingTypesLabels,
+  SortTypesLabels,
+} from '../../../core/consts';
 import { useSortPostsDialog } from '../../hooks/useSortPostsDialog';
 import { usePostsStore } from '../../../stores/PostsStore';
+import { useAccountsStore } from '../../../stores/AccountsStore';
+import { useSortCommentsDialog } from '../../hooks/useSortCommentsDialog';
 
 export function CustomNavigationBar({ navigation, route, options }: DrawerHeaderProps) {
   const { colors } = useTheme();
-  const { sort, showDialog, component: dialog } = useSortPostsDialog();
+  const { sort: postSort, showDialog: showSortPosts, component: sortPostsDialog } = useSortPostsDialog();
+  const { sort: commentSort, showDialog: showSortComments, component: sortCommentsDialog } = useSortCommentsDialog();
   const { type, setType } = usePostsStore(state => ({
     type: state.type,
     setType: state.setType,
@@ -21,24 +30,47 @@ export function CustomNavigationBar({ navigation, route, options }: DrawerHeader
     navigation.openDrawer();
   }, [navigation]);
 
-  const handleOpenSortDialog = React.useCallback(() => {
-    showDialog();
-  }, [showDialog]);
+  const handleOpenSortPostsDialog = React.useCallback(() => {
+    showSortPosts();
+  }, [showSortPosts]);
+
+  const handleOpenSortCommentsDialog = React.useCallback(() => {
+    showSortComments();
+  }, [showSortComments]);
+
+  const { selectedAccount } = useAccountsStore(state => ({
+    selectedAccount: state.selectedAccount,
+  }));
 
   return (
     <Surface>
-      {dialog}
+      {sortPostsDialog}
+      {sortCommentsDialog}
       <Appbar.Header>
-        <Appbar.Action icon={'menu'} onPress={handleOpenDrawer} />
         {title == APP_NAME ? (
-          <View style={styles.appBarContent}>
-            <Appbar.Content title={title} />
-            <Text>{SortTypesLabels[sort]}</Text>
-          </View>
+          <>
+            <Appbar.Action icon={'menu'} onPress={handleOpenDrawer} />
+            <View style={styles.appBarContent}>
+              <Appbar.Content title={title} />
+              <Text>{SortTypesLabels[postSort]}</Text>
+            </View>
+          </>
+        ) : title == 'Post' ? (
+          <>
+            <Appbar.BackAction onPress={navigation.goBack} />
+            <View style={styles.appBarContent}>
+              <Appbar.Content title={title} />
+              <Text>{CommentSortTypesLabels[commentSort]}</Text>
+            </View>
+          </>
         ) : (
-          <Appbar.Content title={title} />
+          <>
+            <Appbar.BackAction onPress={navigation.goBack} />
+            <Appbar.Content title={title} />
+          </>
         )}
-        {title == APP_NAME && <Appbar.Action icon={'sort'} onPress={handleOpenSortDialog} />}
+        {title == APP_NAME && <Appbar.Action icon={'sort'} onPress={handleOpenSortPostsDialog} />}
+        {title == 'Post' && <Appbar.Action icon={'sort'} onPress={handleOpenSortCommentsDialog} />}
       </Appbar.Header>
       {title == APP_NAME && (
         <View style={{ ...styles.listingTypeContainer, backgroundColor: colors.background }}>
@@ -47,6 +79,7 @@ export function CustomNavigationBar({ navigation, route, options }: DrawerHeader
               key={listingType}
               mode={type === listingType ? 'contained-tonal' : undefined}
               onPress={() => setType(listingType)}
+              disabled={listingType === 'Subscribed' && !selectedAccount}
             >
               {ListingTypesLabels[listingType]}
             </Button>

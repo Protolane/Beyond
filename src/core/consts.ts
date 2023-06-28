@@ -1,5 +1,6 @@
 ﻿import type { ListingType, SortType } from 'lemmy-js-client';
 import type { IconSource } from 'react-native-paper/lib/typescript/src/components/Icon';
+import type { CommentSortType } from 'lemmy-js-client/dist/types/CommentSortType';
 
 export const APP_NAME = 'Beyond';
 
@@ -17,6 +18,8 @@ export const SortTypes: SortType[] = [
   'NewComments',
 ];
 
+export const CommentSortTypes: CommentSortType[] = ['Hot', 'Top', 'New', 'Old'];
+
 export const SortTypesLabels: Record<SortType, string> = {
   Active: 'Active',
   Hot: 'Hot',
@@ -31,6 +34,13 @@ export const SortTypesLabels: Record<SortType, string> = {
   NewComments: 'New Comments',
 };
 
+export const CommentSortTypesLabels: Record<CommentSortType, string> = {
+  Hot: 'Hot',
+  Top: 'Top',
+  New: 'New',
+  Old: 'Old',
+};
+
 export const SortTypesIcons: Record<SortType, IconSource> = {
   Active: 'radioactive',
   Hot: 'fire',
@@ -43,6 +53,13 @@ export const SortTypesIcons: Record<SortType, IconSource> = {
   TopAll: 'stop-circle',
   MostComments: 'comment-multiple-outline',
   NewComments: 'comment-plus-outline',
+};
+
+export const CommentSortTypesIcons: Record<CommentSortType, IconSource> = {
+  Hot: 'fire',
+  Top: 'arrow-up-bold-outline',
+  New: 'arrow-up-bold',
+  Old: 'arrow-down-bold',
 };
 
 export const ListingTypes: ListingType[] = ['Subscribed', 'Local', 'All'];

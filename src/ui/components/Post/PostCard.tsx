@@ -15,8 +15,8 @@ export interface PostCardProps {
 }
 
 export function PostCard({ postId }: PostCardProps) {
-  const { data: postResponse, mutate } = usePost(postId);
   const { colors } = useTheme();
+  const { data: postResponse, mutate } = usePost(postId);
   const post = postResponse?.post_view;
   const postType = usePostType(post);
 
@@ -32,12 +32,7 @@ export function PostCard({ postId }: PostCardProps) {
 
   return (
     <TouchableRipple>
-      <Card
-        mode={'outlined'}
-        style={{
-          backgroundColor: post.read ? colors.backdrop : undefined,
-        }}
-      >
+      <Card>
         <Card.Content>
           <PostTag postId={post.post.id} />
           <PostName postId={post.post.id} />
@@ -74,7 +69,7 @@ export function PostCard({ postId }: PostCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   tags: {
     display: 'flex',
     flexDirection: 'row',

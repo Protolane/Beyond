@@ -7,7 +7,10 @@ export function useDialog(options: IUIDialogOptions) {
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
 
-  const component = React.useMemo(() => <UIDialog {...options} visible={visible} hideDialog={hideDialog} />, [visible]);
+  const component = React.useMemo(
+    () => <UIDialog {...options} visible={visible} hideDialog={hideDialog} />,
+    [options, visible]
+  );
 
   return {
     component,

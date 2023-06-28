@@ -6,6 +6,8 @@ import { useAccountsStore } from '../stores/AccountsStore';
 import React from 'react';
 import useSWR from 'swr';
 import { usePostsStore } from '../stores/PostsStore';
+import type { CommentSortType } from 'lemmy-js-client/dist/types/CommentSortType';
+import { useCommentsStore } from '../stores/CommentsStore';
 
 const anonymousInstance = 'lemmy.ml';
 
@@ -41,11 +43,13 @@ export function usePosts() {
     type_: state.type,
   }));
 
+  const limit = 10;
+
   return useSWRInfinite(
-    page => ['posts', baseUrl, sort, type_, page],
-    ([, , , , page]) => {
+    page => ['posts', baseUrl, sort, type_, limit, page],
+    ([, , , , , page]) => {
       return client.getPosts({
-        limit: 10,
+        limit,
         sort,
         type_,
         page,
@@ -57,6 +61,8 @@ export function usePosts() {
   );
 }
 
+// TODO remove usages, use infinite swr instead
+/** @deprecated */
 export function usePost(postId: number) {
   const { baseUrl, client, jwt } = useLemmyClient();
 
@@ -68,12 +74,42 @@ export function usePost(postId: number) {
   });
 }
 
+export function useComments(postId: number) {
+  const { baseUrl, client, jwt } = useLemmyClient();
+  const limit = 20;
+
+  const { sort, type_ } = useCommentsStore(state => ({
+    sort: state.sort,
+    type_: state.type,
+  }));
+
+  return useSWRInfinite(
+    page => ['comments', baseUrl, postId, limit, sort, type_, page],
+    ([, , , , , , page]) => {
+      return client.getComments({
+        auth: jwt,
+        post_id: postId,
+        limit,
+        page,
+        sort,
+        type_,
+      });
+    },
+    {
+      parallel: true,
+      initialSize: 2,
+      revalidateAll: true,
+      revalidateFirstPage: true,
+    }
+  );
+}
+
 export function usePersonDetails(account?: Pick<Account, 'username' | 'instance'>) {
   const { baseUrl, client, jwt } = useLemmyClient();
 
   const username = React.useMemo(() => (account ? `${account.username}@${account.instance}` : null), [account]);
 
-  return useSWR(username ? ['personDetails', username] : null, () => {
+  return useSWR(username ? ['personDetails', baseUrl, username] : null, () => {
     return client.getPersonDetails({
       auth: jwt,
       username: username!,

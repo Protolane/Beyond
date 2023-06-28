@@ -6,14 +6,26 @@ import type { PostCardProps } from './PostCard';
 import { useAccountsStore } from '../../../stores/AccountsStore';
 import { useLemmyClient, usePost } from '../../../api/lemmy';
 import { optimisticUpdate } from '../../../api/optimisticUpdate';
+import { useNavigation } from '@react-navigation/native';
+import * as Clipboard from 'expo-clipboard';
+import Toast from 'react-native-root-toast';
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import type { NavigationList } from '../../NavigationList';
 
 const iconSize = undefined;
 
-export function PostActions({ postId }: PostCardProps) {
+export function PostActions({
+  postId,
+  writeComment = false,
+}: PostCardProps & {
+  writeComment?: boolean;
+}) {
   const { data: postResponse, mutate } = usePost(postId);
 
   const { colors } = useTheme();
-  const { client } = useLemmyClient();
+  const { client, baseUrl } = useLemmyClient();
+
+  const navigation = useNavigation<DrawerNavigationProp<NavigationList>>();
 
   const { selectedAccount } = useAccountsStore(state => ({
     selectedAccount: state.selectedAccount,
@@ -21,7 +33,7 @@ export function PostActions({ postId }: PostCardProps) {
 
   const hasUpvoted = postResponse?.post_view.my_vote === 1;
   const hasDownvoted = postResponse?.post_view.my_vote === -1;
-  const isSsaved = postResponse?.post_view.saved;
+  const isSaved = postResponse?.post_view.saved;
 
   const handlePressUpvote = React.useCallback(() => {
     if (!selectedAccount || !postResponse) return;
@@ -44,7 +56,7 @@ export function PostActions({ postId }: PostCardProps) {
       },
       false
     );
-  }, [client, hasUpvoted, mutate, postResponse, selectedAccount]);
+  }, [postId, client, hasUpvoted, mutate, postResponse, selectedAccount]);
 
   const handlePressDownvote = React.useCallback(() => {
     if (!selectedAccount || !postResponse) return;
@@ -67,11 +79,11 @@ export function PostActions({ postId }: PostCardProps) {
       },
       false
     );
-  }, [client, hasDownvoted, mutate, postResponse, selectedAccount]);
+  }, [postId, client, hasDownvoted, mutate, postResponse, selectedAccount]);
 
   const handlePressComment = React.useCallback(() => {
-    console.log('TODO comment');
-  }, []);
+    if (!writeComment) return void navigation.navigate('Post', { postId });
+  }, [navigation, postId, writeComment]);
 
   const handlePressSave = React.useCallback(() => {
     if (!selectedAccount || !postResponse) return;
@@ -81,7 +93,7 @@ export function PostActions({ postId }: PostCardProps) {
         ...postResponse,
         post_view: {
           ...postResponse.post_view,
-          saved: !isSsaved,
+          saved: !isSaved,
         },
       },
       mutate,
@@ -89,16 +101,20 @@ export function PostActions({ postId }: PostCardProps) {
         return client.savePost({
           post_id: postId,
           auth: selectedAccount.jwt,
-          save: !isSsaved,
+          save: !isSaved,
         });
       },
       false
     );
-  }, [client, isSsaved, mutate, postResponse, selectedAccount]);
+  }, [client, isSaved, mutate, postId, postResponse, selectedAccount]);
 
   const handlePressShare = React.useCallback(() => {
-    console.log('TODO share');
-  }, []);
+    Clipboard.setStringAsync(`${baseUrl}/post/${postResponse?.post_view?.post.id}`).then(() => {
+      Toast.show('URL copied to clipboard.', {
+        duration: Toast.durations.LONG,
+      });
+    });
+  }, [baseUrl, postResponse?.post_view?.post.id]);
 
   return (
     <>
@@ -143,8 +159,8 @@ export function PostActions({ postId }: PostCardProps) {
           <IconButton
             onPress={handlePressSave}
             size={iconSize}
-            iconColor={isSsaved ? colors.tertiary : undefined}
-            icon={isSsaved ? 'heart' : 'heart-outline'}
+            iconColor={isSaved ? colors.tertiary : undefined}
+            icon={isSaved ? 'heart' : 'heart-outline'}
           />
         )}
         <IconButton onPress={handlePressShare} size={iconSize} icon={'share-outline'} />

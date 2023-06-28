@@ -1,12 +1,10 @@
 ﻿import React from 'react';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { NavigationList } from '../../ui/NavigationList';
 import { usePosts } from '../../api/lemmy';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import type { PostView } from 'lemmy-js-client';
 import { PostsView } from '../../ui/components/Post/PostsView';
 
-export function HomeScreen({ navigation }: NativeStackScreenProps<NavigationList, 'Home'>) {
+export function HomeScreen() {
   const { data, error, size, setSize, isLoading } = usePosts();
   const [internalSize, setInternalSize] = React.useState(2);
 
