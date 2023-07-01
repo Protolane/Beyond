@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Form, FieldTypes } from '../../core/form/components/Form';
+import { FieldTypes, Form } from '../../core/form/components/Form';
 
 export interface Login {
   instance: string;
@@ -28,13 +28,13 @@ export function LoginForm(props: LoginFormProps) {
           type: FieldTypes.Text,
           name: 'usernameOrEmail',
           label: 'Username or Email',
-          rules: { required: true },
+          rules: { required: false },
         },
         {
           type: FieldTypes.Text,
           name: 'password',
           label: 'Password',
-          rules: { required: true },
+          rules: { required: false },
           props: { secureTextEntry: true },
         },
       ]}

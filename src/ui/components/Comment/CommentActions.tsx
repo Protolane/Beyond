@@ -7,6 +7,7 @@ import { useAccountsStore } from '../../../stores/AccountsStore';
 import { optimisticUpdate } from '../../../api/optimisticUpdate';
 import { useCommentMoreDialog } from '../../hooks/useCommentMoreDialog';
 import { useComments, useLemmyClient } from '../../../api/lemmy';
+import { useCommentEditorDialog } from '../../hooks/useCommentEditorDialog';
 
 export interface CommentActionsProps {
   comment: CommentView;
@@ -24,13 +25,18 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
   const { client } = useLemmyClient();
 
   const { showDialog: showMoreDialog, component } = useCommentMoreDialog(comment);
+  const {
+    component: commentEditor,
+    showDialog: openCommentEditor,
+    hideDialog: closeCommentEditor,
+  } = useCommentEditorDialog(comment.post, comment.comment);
 
   const hasUpvoted = comment.my_vote === 1;
   const hasDownvoted = comment.my_vote === -1;
   const isSaved = comment.saved;
 
   const handlePressUpvote = React.useCallback(() => {
-    if (!selectedAccount || !data) return;
+    if (!selectedAccount?.jwt || !data) return;
 
     const targetCommentPage = data?.findIndex(c => c.comments.find(c => c.comment.id === comment.comment.id));
     const targetCommentIndex = data?.[targetCommentPage ?? 0].comments.findIndex(
@@ -59,7 +65,7 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
   }, [client, comment, data, hasUpvoted, mutate, selectedAccount]);
 
   const handlePressDownvote = React.useCallback(() => {
-    if (!selectedAccount || !data) return;
+    if (!selectedAccount?.jwt || !data) return;
 
     const targetCommentPage = data?.findIndex(c => c.comments.find(c => c.comment.id === comment.comment.id));
     const targetCommentIndex = data?.[targetCommentPage ?? 0].comments.findIndex(
@@ -96,7 +102,7 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
   }, []);
 
   const handlePressSave = React.useCallback(() => {
-    if (!selectedAccount || !data) return;
+    if (!selectedAccount?.jwt || !data) return;
 
     const targetCommentPage = data?.findIndex(c => c.comments.find(c => c.comment.id === comment.comment.id));
     const targetCommentIndex = data?.[targetCommentPage ?? 0].comments.findIndex(
@@ -123,12 +129,13 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
   }, [client, comment, data, isSaved, mutate, selectedAccount]);
 
   const handlePressReply = React.useCallback(() => {
-    console.log('TODO reply');
-  }, []);
+    openCommentEditor();
+  }, [openCommentEditor]);
 
   return (
     <>
       {component}
+      {commentEditor}
       <View
         style={{
           display: 'flex',
@@ -143,7 +150,7 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
           size={iconSize}
           icon={'arrow-up'}
           counter={comment.counts.upvotes}
-          disabled={!selectedAccount || comment.comment.deleted}
+          disabled={!selectedAccount?.jwt || comment.comment.deleted}
         />
         <CounterButton
           onPress={handlePressDownvote}
@@ -151,7 +158,7 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
           size={iconSize}
           icon={'arrow-down'}
           counter={comment.counts.downvotes}
-          disabled={!selectedAccount || comment.comment.deleted}
+          disabled={!selectedAccount?.jwt || comment.comment.deleted}
         />
       </View>
       <View
@@ -171,13 +178,13 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
           onPress={handlePressSave}
           size={iconSize}
           icon={isSaved ? 'heart' : 'heart-outline'}
-          disabled={!selectedAccount || comment.comment.deleted}
+          disabled={!selectedAccount?.jwt || comment.comment.deleted}
         />
         <IconButton
           onPress={handlePressReply}
           size={iconSize}
           icon={'reply'}
-          disabled={!selectedAccount || comment.comment.deleted}
+          disabled={!selectedAccount?.jwt || comment.comment.deleted}
         />
       </View>
     </>

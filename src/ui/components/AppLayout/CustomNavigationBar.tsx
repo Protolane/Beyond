@@ -79,7 +79,7 @@ export function CustomNavigationBar({ navigation, route, options }: DrawerHeader
               key={listingType}
               mode={type === listingType ? 'contained-tonal' : undefined}
               onPress={() => setType(listingType)}
-              disabled={listingType === 'Subscribed' && !selectedAccount}
+              disabled={listingType === 'Subscribed' && !selectedAccount?.jwt}
             >
               {ListingTypesLabels[listingType]}
             </Button>

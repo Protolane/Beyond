@@ -5,9 +5,28 @@ import React from 'react';
 import { useComments, usePost } from '../../../api/lemmy';
 import { Comment } from './Comment';
 import type { CommentView } from 'lemmy-js-client/dist/types/CommentView';
+import { InView } from 'react-native-intersection-observer';
+import { useCommentEditorDialog } from '../../hooks/useCommentEditorDialog';
+
+const loadMoreFrom = 2;
 
 export function PostComments({ postId }: PostCardProps) {
-  const { data } = useComments(postId);
+  const { data, setSize, isLoading } = useComments(postId);
+  const [internalSize, setInternalSize] = React.useState(2);
+
+  React.useEffect(() => {
+    setSize(internalSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [internalSize]);
+
+  const handleLoadMore = React.useCallback(
+    function handleLoadMore() {
+      if (isLoading || !data) return;
+      console.log('load more');
+      setInternalSize(data.length + 1);
+    },
+    [isLoading, data]
+  );
 
   const commentsResponse = React.useMemo(() => {
     return data?.reduce(
@@ -30,8 +49,17 @@ export function PostComments({ postId }: PostCardProps) {
 
   return (
     <View>
-      {rootComments.map(comment => (
-        <Comment key={comment.comment.id} comment={comment} comments={commentsResponse} />
+      {rootComments.map((comment, i) => (
+        <InView
+          key={comment.comment.id}
+          onChange={inView => {
+            if (inView && i >= rootComments.length - 1 - loadMoreFrom) {
+              handleLoadMore();
+            }
+          }}
+        >
+          <Comment comment={comment} comments={commentsResponse} />
+        </InView>
       ))}
     </View>
   );

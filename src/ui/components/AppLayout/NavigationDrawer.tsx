@@ -16,12 +16,14 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
     removeAccount: state.removeAccount,
   }));
 
-  const { colors } = useTheme();
-
   const { data: personDetails } = usePersonDetails(selectedAccount);
 
   function handleNavigateLogin() {
     navigation.navigate('Login');
+  }
+
+  function handleNavigateDebug() {
+    navigation.navigate('Debug');
   }
 
   function handleSelectAccount(account: Account) {
@@ -63,7 +65,9 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
                   textShadowRadius: 10,
                 }}
               >
-                {selectedAccount ? `@${selectedAccount.username}@${selectedAccount.instance}` : 'Anonymous'}
+                {selectedAccount.username
+                  ? `@${selectedAccount.username}@${selectedAccount.instance}`
+                  : selectedAccount.instance}
               </Text>
             </View>
           </ImageBackground>
@@ -73,8 +77,8 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
           <Drawer.Section title={'Account'} showDivider={false}>
             {accounts.map(account => (
               <Drawer.Item
-                key={`@${account.username}@${account.instance}`}
-                label={`@${account.username}@${account.instance}`}
+                key={account.username ? `@${account.username}@${account.instance}` : account.instance}
+                label={account.username ? `@${account.username}@${account.instance}` : account.instance}
                 onPress={() => handleSelectAccount(account)}
                 icon={
                   selectedAccount?.username === account.username && selectedAccount?.instance === account.instance
@@ -83,18 +87,13 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
                 }
               />
             ))}
-            <Drawer.Item
-              key={'anonymous'}
-              label={'Anonymous'}
-              onPress={() => setSelectedAccount(undefined)}
-              icon={selectedAccount === undefined ? 'account-circle' : 'account-circle-outline'}
-            />
             <Drawer.Item label="Add account" onPress={handleNavigateLogin} icon="account-plus-outline" />
           </Drawer.Section>
           <Drawer.Section title={'Preferences'} showDivider={false}>
             {/*<Drawer.Item label="Dark theme" />*/}
             {/*<Drawer.Item label="Enable NSFW" />*/}
             <Drawer.Item label="Settings" icon="cog" />
+            <Drawer.Item label="Debug" icon="bug-outline" onPress={handleNavigateDebug} />
           </Drawer.Section>
         </View>
       </ScrollView>

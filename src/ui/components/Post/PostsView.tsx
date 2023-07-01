@@ -1,4 +1,4 @@
-﻿import { SafeAreaView, StyleSheet, View } from 'react-native';
+﻿import { ImageBackground, SafeAreaView, StyleSheet, View } from 'react-native';
 import { PostCard } from './PostCard';
 import React from 'react';
 import type { PostView } from 'lemmy-js-client';
@@ -20,29 +20,31 @@ export function PostsView({ posts, onLoadMore }: PostsViewProps) {
   }, [posts]);
 
   return (
-    <SafeAreaView>
-      <IOScrollView showsVerticalScrollIndicator={false}>
-        {posts.map((post, i) => (
-          <InView
-            key={post.post.id}
-            style={style.container}
-            onChange={inView => {
-              if (inView && i >= posts.length - 1 - loadMoreFrom && onLoadMore) {
-                onLoadMore();
-                setIsLoading(true);
-              }
-            }}
-          >
-            <PostCard postId={post.post.id} />
-          </InView>
-        ))}
-        {isLoading && (
-          <View style={style.container}>
-            <ActivityIndicator />
-          </View>
-        )}
-      </IOScrollView>
-    </SafeAreaView>
+    <ImageBackground source={require('../../../../assets/seamless-bright.png')}>
+      <SafeAreaView>
+        <IOScrollView showsVerticalScrollIndicator={false}>
+          {posts.map((post, i) => (
+            <InView
+              key={post.post.id}
+              style={style.container}
+              onChange={inView => {
+                if (inView && i >= posts.length - 1 - loadMoreFrom && onLoadMore) {
+                  onLoadMore();
+                  setIsLoading(true);
+                }
+              }}
+            >
+              <PostCard postId={post.post.id} />
+            </InView>
+          ))}
+          {isLoading && (
+            <View style={style.container}>
+              <ActivityIndicator />
+            </View>
+          )}
+        </IOScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 

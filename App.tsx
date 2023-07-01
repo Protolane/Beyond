@@ -13,6 +13,9 @@ import { SWRConfig } from 'swr';
 import { APP_NAME } from './src/core/consts';
 import { PostScreen } from './src/post/components/PostScreen';
 import { RootSiblingParent } from 'react-native-root-siblings';
+import { DebugScreen } from './src/debug/DebugScreen';
+import { CommunityScreen } from './src/Community/components/CommunityScreen';
+import { SWRCache } from './src/SWRCache';
 
 const Drawer = createDrawerNavigator<NavigationList>();
 
@@ -25,9 +28,9 @@ export default function App() {
   };
   return (
     <SWRConfig
-    // value={{
-    //   provider: asyncStorageSWRCacheProvider,
-    // }}
+      value={{
+        provider: () => SWRCache,
+      }}
     >
       <RootSiblingParent>
         <PaperProvider>
@@ -42,6 +45,8 @@ export default function App() {
               <Drawer.Screen name={APP_NAME} component={HomeScreen} />
               <Drawer.Screen name="Login" component={LoginScreen} />
               <Drawer.Screen name="Post" component={PostScreen} />
+              <Drawer.Screen name="Community" component={CommunityScreen} />
+              <Drawer.Screen name="Debug" component={DebugScreen} />
             </Drawer.Navigator>
           </NavigationContainer>
         </PaperProvider>

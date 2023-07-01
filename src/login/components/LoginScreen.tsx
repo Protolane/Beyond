@@ -6,36 +6,56 @@ import { LemmyHttp } from 'lemmy-js-client';
 import type { Account } from '../../stores/AccountsStore';
 import { useAccountsStore } from '../../stores/AccountsStore';
 import type { DrawerScreenProps } from '@react-navigation/drawer';
+import { APP_NAME } from '../../core/consts';
+import Toast from 'react-native-root-toast';
+import { Text } from 'react-native-paper';
 
 export function LoginScreen({ navigation }: DrawerScreenProps<NavigationList, 'Login'>) {
-  const { setSelectedAccount, addAccount } = useAccountsStore(state => ({
+  const { setSelectedAccount, addAccount, accounts } = useAccountsStore(state => ({
     setSelectedAccount: state.setSelectedAccount,
     addAccount: state.addAccount,
+    accounts: state.accounts,
   }));
 
   async function handleLogin(values: Login) {
-    const client: LemmyHttp = new LemmyHttp(`https://${values.instance}`);
-    const response = await client.login({
-      username_or_email: values.usernameOrEmail,
-      password: values.password,
-    });
+    if (accounts.find(a => a.instance === values.instance && a.username === values.usernameOrEmail)) {
+      Toast.show('Account already exists');
+    } else {
+      if (!values.usernameOrEmail || !values.password) {
+        const account: Account = {
+          instance: values.instance,
+        };
 
-    if (!response?.jwt) return;
+        addAccount(account);
+        setSelectedAccount(account);
 
-    const account: Account = {
-      instance: values.instance,
-      username: values.usernameOrEmail,
-      jwt: response.jwt,
-    };
+        return void navigation.navigate(APP_NAME);
+      }
 
-    addAccount(account);
-    setSelectedAccount(account);
+      const client: LemmyHttp = new LemmyHttp(`https://${values.instance}`);
+      const response = await client.login({
+        username_or_email: values.usernameOrEmail,
+        password: values.password,
+      });
 
-    navigation.navigate('Home');
+      if (!response?.jwt) return;
+
+      const account: Account = {
+        instance: values.instance,
+        username: values.usernameOrEmail,
+        jwt: response.jwt,
+      };
+
+      addAccount(account);
+      setSelectedAccount(account);
+    }
+
+    navigation.navigate(APP_NAME);
   }
 
   return (
     <View style={style.container}>
+      <Text>To browse an instance anonymously, do not enter a username and password, only the instance address.</Text>
       <LoginForm onCancel={() => navigation.canGoBack() && navigation.goBack()} onSubmit={handleLogin} />
     </View>
   );
@@ -44,8 +64,9 @@ export function LoginScreen({ navigation }: DrawerScreenProps<NavigationList, 'L
 const style = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 2,
+    gap: 16,
     alignItems: 'stretch',
     justifyContent: 'center',
+    margin: 32,
   },
 });

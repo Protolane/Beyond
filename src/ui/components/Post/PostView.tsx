@@ -3,8 +3,7 @@ import { usePost } from '../../../api/lemmy';
 import { getImagePostURL, getLinkPostURL, usePostType } from '../../hooks/usePostType';
 import { ActivityIndicator, Badge, Card, Text } from 'react-native-paper';
 import React from 'react';
-import { Animated, SafeAreaView, View } from 'react-native';
-import ScrollView = Animated.ScrollView;
+import { SafeAreaView, View } from 'react-native';
 import { PostTag } from './PostTag';
 import { PostName } from './PostName';
 import { A } from '@expo/html-elements';
@@ -13,7 +12,7 @@ import { PostImage } from './PostImage';
 import { PostActions } from './PostActions';
 import { PostContent } from './PostCardContent';
 import { PostComments } from '../Comment/PostComments';
-import { InView, IOScrollView } from 'react-native-intersection-observer';
+import { IOScrollView } from 'react-native-intersection-observer';
 
 export function PostView({ postId }: PostCardProps) {
   const { data: postResponse, mutate } = usePost(postId);
@@ -24,6 +23,8 @@ export function PostView({ postId }: PostCardProps) {
   const image = getImagePostURL(post);
 
   if (!post) return <ActivityIndicator />;
+
+  console.log(postResponse?.community_view.community);
 
   return (
     <SafeAreaView>
@@ -58,7 +59,7 @@ export function PostView({ postId }: PostCardProps) {
               paddingBottom: 0,
             }}
           >
-            <PostActions postId={post.post.id} />
+            <PostActions postId={post.post.id} writeComment />
           </Card.Actions>
         </View>
         <PostComments postId={postId} />

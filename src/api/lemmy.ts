@@ -1,15 +1,15 @@
-﻿import type { GetPersonDetails } from 'lemmy-js-client';
-import { LemmyHttp } from 'lemmy-js-client';
+﻿import { LemmyHttp } from 'lemmy-js-client';
 import useSWRInfinite from 'swr/infinite';
 import type { Account } from '../stores/AccountsStore';
 import { useAccountsStore } from '../stores/AccountsStore';
 import React from 'react';
 import useSWR from 'swr';
 import { usePostsStore } from '../stores/PostsStore';
-import type { CommentSortType } from 'lemmy-js-client/dist/types/CommentSortType';
 import { useCommentsStore } from '../stores/CommentsStore';
+import { mutate } from 'swr';
 
-const anonymousInstance = 'lemmy.ml';
+const infiniteSWRCacheKeyPrefix = '$inf$@';
+const SWRCacheKeyPrefix = '@';
 
 export function useLemmyClient() {
   const { selectedAccount } = useAccountsStore(state => ({
@@ -19,7 +19,7 @@ export function useLemmyClient() {
     removeAccount: state.removeAccount,
   }));
 
-  const baseUrl = React.useMemo(() => selectedAccount?.instance ?? anonymousInstance, [selectedAccount]);
+  const baseUrl = React.useMemo(() => selectedAccount?.instance, [selectedAccount]);
   const client: LemmyHttp = React.useMemo(
     () =>
       new LemmyHttp(
@@ -36,7 +36,8 @@ export function useLemmyClient() {
   return { baseUrl, client, jwt: selectedAccount?.jwt };
 }
 
-export function usePosts() {
+const postsBaseKey = 'posts';
+export function usePosts(community_name?: string) {
   const { baseUrl, client } = useLemmyClient();
   const { sort, type_ } = usePostsStore(state => ({
     sort: state.sort,
@@ -46,19 +47,52 @@ export function usePosts() {
   const limit = 10;
 
   return useSWRInfinite(
-    page => ['posts', baseUrl, sort, type_, limit, page],
-    ([, , , , , page]) => {
+    page => [postsBaseKey, baseUrl, sort, type_, limit, community_name, page],
+    ([, , , , , , page]) => {
       return client.getPosts({
         limit,
         sort,
         type_,
         page,
+        community_name,
       });
     },
     {
       initialSize: 2,
     }
   );
+}
+
+function useRefreshCache(base: string) {
+  const refresh = React.useCallback(
+    () =>
+      mutate(
+        key => {
+          console.log(key);
+          if (typeof key === 'string') {
+            return (
+              key.startsWith(`${infiniteSWRCacheKeyPrefix}"${base}`) || key.startsWith(`${SWRCacheKeyPrefix}"${base}`)
+            );
+          }
+          if (Array.isArray(key)) {
+            return key[0] === base;
+          }
+        },
+        undefined,
+        {
+          revalidate: true,
+        }
+      ),
+    [base]
+  );
+
+  return {
+    refresh,
+  };
+}
+
+export function useRefreshPostsCache() {
+  return useRefreshCache(postsBaseKey);
 }
 
 // TODO remove usages, use infinite swr instead
@@ -74,9 +108,10 @@ export function usePost(postId: number) {
   });
 }
 
-export function useComments(postId: number) {
+const commentsBaseKey = 'comments';
+export function useComments(postId: number, parent_id?: number, max_depth?: number) {
   const { baseUrl, client, jwt } = useLemmyClient();
-  const limit = 20;
+  const limit = 25;
 
   const { sort, type_ } = useCommentsStore(state => ({
     sort: state.sort,
@@ -84,8 +119,8 @@ export function useComments(postId: number) {
   }));
 
   return useSWRInfinite(
-    page => ['comments', baseUrl, postId, limit, sort, type_, page],
-    ([, , , , , , page]) => {
+    page => [commentsBaseKey, baseUrl, postId, limit, sort, type_, parent_id, max_depth, page],
+    ([, , , , , , , , page]) => {
       return client.getComments({
         auth: jwt,
         post_id: postId,
@@ -93,15 +128,18 @@ export function useComments(postId: number) {
         page,
         sort,
         type_,
+        parent_id,
+        max_depth,
       });
     },
     {
-      parallel: true,
       initialSize: 2,
-      revalidateAll: true,
-      revalidateFirstPage: true,
     }
   );
+}
+
+export function useRefreshCommentsCache() {
+  return useRefreshCache(commentsBaseKey);
 }
 
 export function usePersonDetails(account?: Pick<Account, 'username' | 'instance'>) {

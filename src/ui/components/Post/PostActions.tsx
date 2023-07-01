@@ -11,6 +11,7 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-root-toast';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 import type { NavigationList } from '../../NavigationList';
+import { useCommentEditorDialog } from '../../hooks/useCommentEditorDialog';
 
 const iconSize = undefined;
 
@@ -35,8 +36,14 @@ export function PostActions({
   const hasDownvoted = postResponse?.post_view.my_vote === -1;
   const isSaved = postResponse?.post_view.saved;
 
+  const {
+    component: commentEditor,
+    showDialog: openCommentEditor,
+    hideDialog: closeCommentEditor,
+  } = useCommentEditorDialog(postResponse?.post_view.post);
+
   const handlePressUpvote = React.useCallback(() => {
-    if (!selectedAccount || !postResponse) return;
+    if (!selectedAccount?.jwt || !postResponse) return;
 
     optimisticUpdate(
       {
@@ -59,7 +66,7 @@ export function PostActions({
   }, [postId, client, hasUpvoted, mutate, postResponse, selectedAccount]);
 
   const handlePressDownvote = React.useCallback(() => {
-    if (!selectedAccount || !postResponse) return;
+    if (!selectedAccount?.jwt || !postResponse) return;
 
     optimisticUpdate(
       {
@@ -83,10 +90,11 @@ export function PostActions({
 
   const handlePressComment = React.useCallback(() => {
     if (!writeComment) return void navigation.navigate('Post', { postId });
+    openCommentEditor();
   }, [navigation, postId, writeComment]);
 
   const handlePressSave = React.useCallback(() => {
-    if (!selectedAccount || !postResponse) return;
+    if (!selectedAccount?.jwt || !postResponse) return;
 
     optimisticUpdate(
       {
@@ -118,6 +126,7 @@ export function PostActions({
 
   return (
     <>
+      {commentEditor}
       <View
         style={{
           display: 'flex',
@@ -132,7 +141,7 @@ export function PostActions({
           size={iconSize}
           icon={'arrow-up'}
           counter={postResponse?.post_view.counts.upvotes}
-          disabled={!selectedAccount}
+          disabled={!selectedAccount?.jwt}
         />
         <CounterButton
           onPress={handlePressDownvote}
@@ -140,13 +149,14 @@ export function PostActions({
           size={iconSize}
           icon={'arrow-down'}
           counter={postResponse?.post_view.counts.downvotes}
-          disabled={!selectedAccount}
+          disabled={!selectedAccount?.jwt}
         />
         <CounterButton
           onPress={handlePressComment}
           size={iconSize}
           icon={'comment-text-outline'}
           counter={postResponse?.post_view.counts.comments}
+          disabled={writeComment && !selectedAccount?.jwt}
         />
       </View>
       <View
@@ -155,14 +165,13 @@ export function PostActions({
           flexDirection: 'row',
         }}
       >
-        {selectedAccount && (
-          <IconButton
-            onPress={handlePressSave}
-            size={iconSize}
-            iconColor={isSaved ? colors.tertiary : undefined}
-            icon={isSaved ? 'heart' : 'heart-outline'}
-          />
-        )}
+        <IconButton
+          onPress={handlePressSave}
+          size={iconSize}
+          iconColor={isSaved ? colors.tertiary : undefined}
+          disabled={!selectedAccount?.jwt}
+          icon={isSaved ? 'heart' : 'heart-outline'}
+        />
         <IconButton onPress={handlePressShare} size={iconSize} icon={'share-outline'} />
       </View>
     </>

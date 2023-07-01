@@ -14,7 +14,11 @@ export function CommentTag({ comment }: CommentTagProps) {
     <View style={tagStyles.container}>
       <View style={tagStyles.labels}>
         {!comment.comment.deleted && <CommentAvatar person={comment.creator} />}
-        <CreatorLabel person={comment.creator} deleted={comment.comment.deleted} />
+        <CreatorLabel
+          person={comment.creator}
+          deleted={comment.comment.deleted}
+          isPostOwner={comment.comment.creator_id === comment.post.creator_id}
+        />
       </View>
       <View style={{ flex: 1 }} />
       <View>
