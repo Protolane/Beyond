@@ -26,6 +26,7 @@ export default function App() {
       ...DefaultTheme.colors,
     },
   };
+
   return (
     <SWRConfig
       value={{
