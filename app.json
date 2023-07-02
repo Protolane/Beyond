@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "software.protolane.fediverseclient"
+      "package": "software.protolane.fediverseclient",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
