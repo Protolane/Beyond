@@ -17,7 +17,7 @@ interface AccountsStore {
 }
 
 const defaultAccount: Account = {
-  instance: 'https://lemmy.ml',
+  instance: 'lemmy.ml',
 };
 
 export const useAccountsStore = create(
