@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 
-import { MD3LightTheme as DefaultTheme, PaperProvider } from 'react-native-paper';
+import { PaperProvider, useTheme } from 'react-native-paper';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { HomeScreen } from './src/home/components/HomeScreen';
@@ -20,12 +20,7 @@ import { SWRCache } from './src/SWRCache';
 const Drawer = createDrawerNavigator<NavigationList>();
 
 export default function App() {
-  const theme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-    },
-  };
+  const theme = useTheme();
 
   return (
     <SWRConfig
@@ -35,7 +30,19 @@ export default function App() {
     >
       <RootSiblingParent>
         <PaperProvider>
-          <NavigationContainer>
+          <NavigationContainer
+            theme={{
+              ...theme,
+              colors: {
+                ...theme.colors,
+                background: theme.colors.background,
+                card: theme.colors.background,
+                text: theme.colors.onSurface,
+                border: theme.colors.secondary,
+                notification: theme.colors.backdrop,
+              },
+            }}
+          >
             <Drawer.Navigator
               initialRouteName={APP_NAME}
               drawerContent={NavigationDrawer}

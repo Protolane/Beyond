@@ -6,7 +6,7 @@ export async function optimisticUpdate<T, R>(
   apiFunction?: () => R,
   remutate = true
 ) {
-  await mutate(undefined, false);
+  // await mutate(undefined, false);
   await mutate(newData, false);
   const result = await apiFunction?.();
   if (remutate) await mutate();

@@ -1,12 +1,8 @@
-﻿import { ActivityIndicator, Text } from 'react-native-paper';
+﻿import { Text } from 'react-native-paper';
 import React from 'react';
 import type { PostCardProps } from './PostCard';
-import { usePost } from '../../../api/lemmy';
 
-export function PostName({ postId }: PostCardProps) {
-  const { data: postResponse } = usePost(postId);
-
-  if (!postResponse) return <ActivityIndicator />;
+export function PostName({ postView }: PostCardProps) {
   return (
     <Text
       variant="titleMedium"
@@ -15,7 +11,7 @@ export function PostName({ postId }: PostCardProps) {
         marginBottom: 16,
       }}
     >
-      {postResponse.post_view.post.name}
+      {postView.post.name}
     </Text>
   );
 }

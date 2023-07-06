@@ -1,9 +1,8 @@
 ﻿import React from 'react';
-import { Dimensions, Image } from 'react-native';
+import { Dimensions, Image, View } from 'react-native';
 import type { PostCardProps } from './PostCard';
 import { ActivityIndicator } from 'react-native-paper';
 import useSWR from 'swr';
-import { usePost } from '../../../api/lemmy';
 import { getImagePostURL } from '../../hooks/usePostType';
 
 interface ImageSize {
@@ -32,12 +31,21 @@ function useImageSize(uri?: string) {
   });
 }
 
-export function PostImage({ postId }: PostCardProps) {
-  const { data: postResponse } = usePost(postId);
-  const url = getImagePostURL(postResponse?.post_view);
+export function PostImage({ postView, inView }: PostCardProps & { inView?: boolean }) {
+  const url = getImagePostURL(postView);
   const { data } = useImageSize(url);
 
   if (!data) return <ActivityIndicator />;
+
+  if (inView === false)
+    return (
+      <View
+        style={{
+          width: '100%',
+          height: data.proportion,
+        }}
+      />
+    );
   return (
     <Image
       source={{

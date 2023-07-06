@@ -6,52 +6,44 @@ import { PostContentPreview } from './PostContentPreview';
 import { PostImage } from './PostImage';
 import { PostTag } from './PostTag';
 import { PostActions } from './PostActions';
-import { usePost } from '../../../api/lemmy';
 import { getImagePostURL, getLinkPostURL, usePostType } from '../../hooks/usePostType';
 import { A } from '@expo/html-elements';
+import type { PostView } from 'lemmy-js-client';
 
 export interface PostCardProps {
-  postId: number;
+  postView: PostView;
 }
 
-export function PostCard({ postId }: PostCardProps) {
+export function PostCard({ postView, inView }: PostCardProps & { inView?: boolean }) {
+  const postType = usePostType(postView);
+  const url = getLinkPostURL(postView);
+  const image = getImagePostURL(postView);
   const { colors } = useTheme();
-  const { data: postResponse, mutate } = usePost(postId);
-  const post = postResponse?.post_view;
-  const postType = usePostType(post);
-
-  const url = getLinkPostURL(post);
-  const image = getImagePostURL(post);
-
-  if (!post)
-    return (
-      <Card mode={'outlined'}>
-        <ActivityIndicator />
-      </Card>
-    );
 
   return (
     <TouchableRipple>
       <Card>
         <Card.Content>
-          <PostTag postId={post.post.id} />
-          <PostName postId={post.post.id} />
+          <PostTag postView={postView} />
+          <PostName postView={postView} />
 
           <View style={styles.tags}>
             <Badge>{postType}</Badge>
-            {post.post.nsfw && <Badge>NSFW</Badge>}
-            {post.post.locked && <Badge>Locked</Badge>}
+            {postView.post.nsfw && <Badge>NSFW</Badge>}
+            {postView.post.locked && <Badge>Locked</Badge>}
             {image?.toLowerCase().endsWith('.gif') && <Badge>GIF</Badge>}
           </View>
           {postType === 'link' && (
             <View style={styles.tags}>
-              <A href={url}>{url}</A>
+              <A style={{ color: colors.tertiary }} href={url}>
+                {url}
+              </A>
             </View>
           )}
-          {!image && <PostContentPreview postId={post.post.id} />}
+          {!image && <PostContentPreview postView={postView} />}
         </Card.Content>
 
-        {image && <PostImage postId={post.post.id} />}
+        {image && <PostImage postView={postView} inView={inView} />}
 
         <Card.Actions
           style={{
@@ -62,7 +54,7 @@ export function PostCard({ postId }: PostCardProps) {
             paddingBottom: 0,
           }}
         >
-          <PostActions postId={post.post.id} />
+          <PostActions postView={postView} />
         </Card.Actions>
       </Card>
     </TouchableRipple>

@@ -6,9 +6,11 @@ import * as Clipboard from 'expo-clipboard';
 import type { CommentView } from 'lemmy-js-client/dist/types/CommentView';
 import { useLemmyClient } from '../../api/lemmy';
 
-export function useCommentMoreDialog(comment: CommentView) {
+export function useCommentMoreDialog(comment?: CommentView) {
   const { baseUrl } = useLemmyClient();
   const handlePressShare = () => {
+    if (!comment) return;
+
     Clipboard.setStringAsync(`${baseUrl}/comment/${comment.comment.id}`).then(() => {
       Toast.show('URL copied to clipboard.', {
         duration: Toast.durations.LONG,
@@ -19,6 +21,8 @@ export function useCommentMoreDialog(comment: CommentView) {
   };
 
   const handlePressCopy = () => {
+    if (!comment) return;
+
     // hideMainDialog();
     // showCopyDialog();
 

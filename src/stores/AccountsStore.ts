@@ -25,8 +25,26 @@ export const useAccountsStore = create(
     (set, get) => ({
       accounts: [defaultAccount],
       addAccount: (account: Account) => set(state => ({ accounts: [...state.accounts, account] })),
-      removeAccount: (account: Account) =>
-        set(state => ({ accounts: state.accounts.filter(a => a.jwt !== account.jwt) })),
+      removeAccount: (account: Account) => {
+        const accountIndex = get().accounts.findIndex(
+          a => a.instance === account.instance && a.username === account.username
+        );
+        if (accountIndex === -1) return;
+
+        const accounts = get().accounts.slice();
+        accounts.splice(accountIndex, 1);
+
+        if (accounts.length === 0) {
+          accounts.push(defaultAccount);
+        }
+
+        let selectedAccount = get().selectedAccount;
+        if (selectedAccount.instance === account.instance && selectedAccount.username === account.username) {
+          selectedAccount = accounts[0];
+        }
+
+        set({ accounts, selectedAccount });
+      },
       selectedAccount: defaultAccount,
       setSelectedAccount: (account?: Account) => set({ selectedAccount: account }),
     }),

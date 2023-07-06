@@ -1,17 +1,17 @@
 ﻿import type { PostCardProps } from '../Post/PostCard';
 import { ActivityIndicator, Text } from 'react-native-paper';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React from 'react';
-import { useComments, usePost } from '../../../api/lemmy';
+import { useComments } from '../../../api/lemmy';
 import { Comment } from './Comment';
 import type { CommentView } from 'lemmy-js-client/dist/types/CommentView';
 import { InView } from 'react-native-intersection-observer';
-import { useCommentEditorDialog } from '../../hooks/useCommentEditorDialog';
 
 const loadMoreFrom = 2;
 
-export function PostComments({ postId }: PostCardProps) {
-  const { data, setSize, isLoading } = useComments(postId);
+export function PostComments({ postView }: PostCardProps) {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const { data, setSize, isLoading: isLoadingSWR } = useComments(postView.post.id);
   const [internalSize, setInternalSize] = React.useState(2);
 
   React.useEffect(() => {
@@ -21,11 +21,10 @@ export function PostComments({ postId }: PostCardProps) {
 
   const handleLoadMore = React.useCallback(
     function handleLoadMore() {
-      if (isLoading || !data) return;
-      console.log('load more');
+      if (isLoadingSWR || !data) return;
       setInternalSize(data.length + 1);
     },
-    [isLoading, data]
+    [isLoadingSWR, data]
   );
 
   const commentsResponse = React.useMemo(() => {
@@ -45,6 +44,10 @@ export function PostComments({ postId }: PostCardProps) {
     [commentsResponse]
   );
 
+  React.useEffect(() => {
+    setIsLoading(false);
+  }, [rootComments]);
+
   if (!rootComments || !commentsResponse) return <ActivityIndicator />;
 
   return (
@@ -55,12 +58,25 @@ export function PostComments({ postId }: PostCardProps) {
           onChange={inView => {
             if (inView && i >= rootComments.length - 1 - loadMoreFrom) {
               handleLoadMore();
+              setIsLoading(true);
             }
           }}
         >
           <Comment comment={comment} comments={commentsResponse} />
         </InView>
       ))}
+      {isLoading && (
+        <View style={style.container}>
+          <ActivityIndicator />
+        </View>
+      )}
     </View>
   );
 }
+
+const style = StyleSheet.create({
+  container: {
+    marginTop: 8,
+    marginBottom: 8,
+  },
+});

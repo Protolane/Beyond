@@ -1,8 +1,11 @@
-﻿import { LemmyHttp } from 'lemmy-js-client';
+﻿import type { GetCommentsResponse, GetPostsResponse } from 'lemmy-js-client';
+import { LemmyHttp } from 'lemmy-js-client';
+import type { SWRInfiniteResponse } from 'swr/infinite';
 import useSWRInfinite from 'swr/infinite';
 import type { Account } from '../stores/AccountsStore';
 import { useAccountsStore } from '../stores/AccountsStore';
 import React from 'react';
+import type { SWRConfiguration } from 'swr';
 import useSWR from 'swr';
 import { usePostsStore } from '../stores/PostsStore';
 import { useCommentsStore } from '../stores/CommentsStore';
@@ -10,6 +13,22 @@ import { mutate } from 'swr';
 
 const infiniteSWRCacheKeyPrefix = '$inf$@';
 const SWRCacheKeyPrefix = '@';
+export const swrDefaults: SWRConfiguration = {
+  refreshInterval: 0,
+  // auto revalidate when window gets focused
+  revalidateOnFocus: false,
+  // enable or disable automatic revalidation when component is mounted
+  // (by default revalidation occurs on mount when fallbackData is not set, use this flag to force behavior)
+  revalidateOnMount: undefined,
+  // automatically revalidate when the browser regains a network connection (via navigator.onLine)
+  revalidateOnReconnect: false,
+  // polling when the window is invisible
+  refreshWhenOffline: false,
+  // polling when the browser is offline
+  refreshWhenHidden: false,
+  // retry on errors (including timeouts)
+  shouldRetryOnError: true,
+};
 
 export function useLemmyClient() {
   const { selectedAccount } = useAccountsStore(state => ({
@@ -37,8 +56,8 @@ export function useLemmyClient() {
 }
 
 const postsBaseKey = 'posts';
-export function usePosts(community_name?: string) {
-  const { baseUrl, client } = useLemmyClient();
+export function usePosts(community_name?: string): SWRInfiniteResponse<GetPostsResponse> {
+  const { baseUrl, client, jwt } = useLemmyClient();
   const { sort, type_ } = usePostsStore(state => ({
     sort: state.sort,
     type_: state.type,
@@ -50,6 +69,7 @@ export function usePosts(community_name?: string) {
     page => [postsBaseKey, baseUrl, sort, type_, limit, community_name, page],
     ([, , , , , , page]) => {
       return client.getPosts({
+        auth: jwt,
         limit,
         sort,
         type_,
@@ -58,7 +78,10 @@ export function usePosts(community_name?: string) {
       });
     },
     {
+      ...swrDefaults,
       initialSize: 2,
+      revalidateAll: true,
+      parallel: true,
     }
   );
 }
@@ -95,21 +118,22 @@ export function useRefreshPostsCache() {
   return useRefreshCache(postsBaseKey);
 }
 
-// TODO remove usages, use infinite swr instead
-/** @deprecated */
-export function usePost(postId: number) {
+export function useSite() {
   const { baseUrl, client, jwt } = useLemmyClient();
 
-  return useSWR(['posts', baseUrl, postId], ([, , page]) => {
-    return client.getPost({
-      id: postId,
+  return useSWR(['site', baseUrl], () => {
+    return client.getSite({
       auth: jwt,
     });
   });
 }
 
 const commentsBaseKey = 'comments';
-export function useComments(postId: number, parent_id?: number, max_depth?: number) {
+export function useComments(
+  postId?: number,
+  parent_id?: number,
+  max_depth?: number
+): SWRInfiniteResponse<GetCommentsResponse> {
   const { baseUrl, client, jwt } = useLemmyClient();
   const limit = 25;
 
@@ -119,7 +143,8 @@ export function useComments(postId: number, parent_id?: number, max_depth?: numb
   }));
 
   return useSWRInfinite(
-    page => [commentsBaseKey, baseUrl, postId, limit, sort, type_, parent_id, max_depth, page],
+    page =>
+      postId !== null ? [commentsBaseKey, baseUrl, postId, limit, sort, type_, parent_id, max_depth, page] : null,
     ([, , , , , , , , page]) => {
       return client.getComments({
         auth: jwt,
@@ -133,7 +158,10 @@ export function useComments(postId: number, parent_id?: number, max_depth?: numb
       });
     },
     {
+      ...swrDefaults,
       initialSize: 2,
+      revalidateAll: true,
+      parallel: true,
     }
   );
 }

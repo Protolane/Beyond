@@ -1,24 +1,28 @@
-﻿import type { ListingType, SortType } from 'lemmy-js-client';
+﻿import { CommentSortType, ListingType, SortType } from 'lemmy-js-client';
 import type { IconSource } from 'react-native-paper/lib/typescript/src/components/Icon';
-import type { CommentSortType } from 'lemmy-js-client/dist/types/CommentSortType';
 
 export const APP_NAME = 'Beyond';
 
 export const SortTypes: SortType[] = [
-  'Active',
-  'Hot',
-  'New',
-  'Old',
-  'TopDay',
-  'TopWeek',
-  'TopMonth',
-  'TopYear',
-  'TopAll',
-  'MostComments',
-  'NewComments',
+  SortType.Active,
+  SortType.Hot,
+  SortType.New,
+  SortType.Old,
+  SortType.TopDay,
+  SortType.TopWeek,
+  SortType.TopMonth,
+  SortType.TopYear,
+  SortType.TopAll,
+  SortType.MostComments,
+  SortType.NewComments,
 ];
 
-export const CommentSortTypes: CommentSortType[] = ['Hot', 'Top', 'New', 'Old'];
+export const CommentSortTypes: CommentSortType[] = [
+  CommentSortType.Hot,
+  CommentSortType.Top,
+  CommentSortType.New,
+  CommentSortType.Old,
+];
 
 export const SortTypesLabels: Record<SortType, string> = {
   Active: 'Active',
@@ -62,9 +66,10 @@ export const CommentSortTypesIcons: Record<CommentSortType, IconSource> = {
   Old: 'arrow-down-bold',
 };
 
-export const ListingTypes: ListingType[] = ['Subscribed', 'Local', 'All'];
+export const ListingTypes: Partial<ListingType>[] = [ListingType.Subscribed, ListingType.Local, ListingType.All];
 export const ListingTypesLabels: Record<ListingType, string> = {
   Subscribed: 'Subscribed',
   Local: 'Local',
   All: 'All',
+  Community: 'Community',
 };

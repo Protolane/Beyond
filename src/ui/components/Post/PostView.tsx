@@ -1,7 +1,6 @@
 ﻿import type { PostCardProps } from './PostCard';
-import { usePost } from '../../../api/lemmy';
 import { getImagePostURL, getLinkPostURL, usePostType } from '../../hooks/usePostType';
-import { ActivityIndicator, Badge, Card, Text } from 'react-native-paper';
+import { Badge, Card, useTheme } from 'react-native-paper';
 import React from 'react';
 import { SafeAreaView, View } from 'react-native';
 import { PostTag } from './PostTag';
@@ -14,30 +13,24 @@ import { PostContent } from './PostCardContent';
 import { PostComments } from '../Comment/PostComments';
 import { IOScrollView } from 'react-native-intersection-observer';
 
-export function PostView({ postId }: PostCardProps) {
-  const { data: postResponse, mutate } = usePost(postId);
-  const post = postResponse?.post_view;
-  const postType = usePostType(post);
-
-  const url = getLinkPostURL(post);
-  const image = getImagePostURL(post);
-
-  if (!post) return <ActivityIndicator />;
-
-  console.log(postResponse?.community_view.community);
+export function PostView({ postView }: PostCardProps) {
+  const postType = usePostType(postView);
+  const url = getLinkPostURL(postView);
+  const image = getImagePostURL(postView);
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor: colors.background }}>
       <IOScrollView>
         <View>
           <Card.Content>
-            <PostTag postId={post.post.id} />
-            <PostName postId={post.post.id} />
+            <PostTag postView={postView} />
+            <PostName postView={postView} />
 
             <View style={styles.tags}>
               <Badge>{postType}</Badge>
-              {post.post.nsfw && <Badge>NSFW</Badge>}
-              {post.post.locked && <Badge>Locked</Badge>}
+              {postView.post.nsfw && <Badge>NSFW</Badge>}
+              {postView.post.locked && <Badge>Locked</Badge>}
               {image?.toLowerCase().endsWith('.gif') && <Badge>GIF</Badge>}
             </View>
             {postType === 'link' && (
@@ -45,10 +38,10 @@ export function PostView({ postId }: PostCardProps) {
                 <A href={url}>{url}</A>
               </View>
             )}
-            {!image && <PostContent postId={post.post.id} />}
+            {!image && <PostContent postView={postView} />}
           </Card.Content>
 
-          {image && <PostImage postId={post.post.id} />}
+          {image && <PostImage postView={postView} />}
 
           <Card.Actions
             style={{
@@ -59,10 +52,10 @@ export function PostView({ postId }: PostCardProps) {
               paddingBottom: 0,
             }}
           >
-            <PostActions postId={post.post.id} writeComment />
+            <PostActions postView={postView} writeComment />
           </Card.Actions>
         </View>
-        <PostComments postId={postId} />
+        <PostComments postView={postView} />
       </IOScrollView>
     </SafeAreaView>
   );
