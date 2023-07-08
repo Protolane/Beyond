@@ -20,8 +20,6 @@ import { SWRCache } from './src/SWRCache';
 const Drawer = createDrawerNavigator<NavigationList>();
 
 export default function App() {
-  const theme = useTheme();
-
   return (
     <SWRConfig
       value={{
@@ -30,35 +28,43 @@ export default function App() {
     >
       <RootSiblingParent>
         <PaperProvider>
-          <NavigationContainer
-            theme={{
-              ...theme,
-              colors: {
-                ...theme.colors,
-                background: theme.colors.background,
-                card: theme.colors.background,
-                text: theme.colors.onSurface,
-                border: theme.colors.secondary,
-                notification: theme.colors.backdrop,
-              },
-            }}
-          >
-            <Drawer.Navigator
-              initialRouteName={APP_NAME}
-              drawerContent={NavigationDrawer}
-              screenOptions={{
-                header: props => <CustomNavigationBar {...props} />,
-              }}
-            >
-              <Drawer.Screen name={APP_NAME} component={HomeScreen} />
-              <Drawer.Screen name="Login" component={LoginScreen} />
-              <Drawer.Screen name="Post" component={PostScreen} />
-              <Drawer.Screen name="Community" component={CommunityScreen} />
-              <Drawer.Screen name="Debug" component={DebugScreen} />
-            </Drawer.Navigator>
-          </NavigationContainer>
+          <AppWithTheme />
         </PaperProvider>
       </RootSiblingParent>
     </SWRConfig>
+  );
+}
+
+function AppWithTheme() {
+  const theme = useTheme();
+
+  return (
+    <NavigationContainer
+      theme={{
+        dark: theme.dark,
+        colors: {
+          border: theme.colors.background,
+          background: theme.colors.background,
+          card: theme.colors.background,
+          notification: theme.colors.outline,
+          primary: theme.colors.primary,
+          text: theme.colors.onBackground,
+        },
+      }}
+    >
+      <Drawer.Navigator
+        initialRouteName={APP_NAME}
+        drawerContent={NavigationDrawer}
+        screenOptions={{
+          header: props => <CustomNavigationBar {...props} />,
+        }}
+      >
+        <Drawer.Screen name={APP_NAME} component={HomeScreen} />
+        <Drawer.Screen name="Login" component={LoginScreen} />
+        <Drawer.Screen name="Post" component={PostScreen} />
+        <Drawer.Screen name="Community" component={CommunityScreen} />
+        <Drawer.Screen name="Debug" component={DebugScreen} />
+      </Drawer.Navigator>
+    </NavigationContainer>
   );
 }

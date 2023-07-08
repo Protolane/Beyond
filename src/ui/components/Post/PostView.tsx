@@ -35,7 +35,9 @@ export function PostView({ postView }: PostCardProps) {
             </View>
             {postType === 'link' && (
               <View style={styles.tags}>
-                <A href={url}>{url}</A>
+                <A style={{ color: colors.tertiary }} href={url}>
+                  {url}
+                </A>
               </View>
             )}
             {!image && <PostContent postView={postView} />}

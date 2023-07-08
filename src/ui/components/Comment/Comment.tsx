@@ -1,11 +1,12 @@
-﻿import type { CommentView } from 'lemmy-js-client/dist/types/CommentView';
-import { ActivityIndicator, Card, Text } from 'react-native-paper';
+﻿import { ActivityIndicator, Card, Text } from 'react-native-paper';
 import Markdown from '@ronradtke/react-native-markdown-display';
 import { Levels } from '../Levels';
 import { CommentTag } from './CommentTag';
 import { CommentActions } from './CommentActions';
 import { StyleSheet, View } from 'react-native';
 import React from 'react';
+import type { CommentView } from 'lemmy-js-client';
+import { StyledMarkdown } from '../StyledMarkdown';
 
 export interface CommentProps {
   comment: CommentView;
@@ -25,7 +26,11 @@ export function Comment({ comment, comments }: CommentProps) {
     <Levels level={level}>
       <View style={styles.container}>
         <CommentTag comment={comment} />
-        {comment.comment.deleted ? <DeletedCommentContent /> : <Markdown>{comment.comment.content}</Markdown>}
+        {comment.comment.deleted ? (
+          <DeletedCommentContent />
+        ) : (
+          <StyledMarkdown>{comment.comment.content}</StyledMarkdown>
+        )}
         <Card.Actions>
           <CommentActions comment={comment} />
         </Card.Actions>

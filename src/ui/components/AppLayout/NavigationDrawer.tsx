@@ -1,4 +1,4 @@
-﻿import { Avatar, Drawer, Text, useTheme } from 'react-native-paper';
+﻿import { Avatar, Drawer, Surface, Text, useTheme } from 'react-native-paper';
 import { Animated, Image, ImageBackground, SafeAreaView, StyleSheet, View } from 'react-native';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer/src/types';
 import type { Account } from '../../../stores/AccountsStore';
@@ -20,6 +20,8 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
 
   const { data: personDetails } = usePersonDetails(selectedAccount);
 
+  const { dark } = useTheme();
+
   function handleNavigateLogin() {
     navigation.navigate('Login');
   }
@@ -38,83 +40,89 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
   return (
     <>
       {component}
-      <SafeAreaView>
-        <ScrollView>
-          <View
-            style={{
-              flex: 1,
-              height: userCardHeight,
-              backgroundColor: personDetails?.person_view?.person.banner ? undefined : 'lightblue',
-            }}
-          >
-            <ImageBackground
-              source={{ uri: personDetails?.person_view?.person.banner }}
-              resizeMode={'cover'}
+      <Surface elevation={0}>
+        <SafeAreaView>
+          <ScrollView>
+            <View
               style={{
                 flex: 1,
-                justifyContent: 'center',
+                height: userCardHeight,
+                backgroundColor: personDetails?.person_view?.person.banner
+                  ? undefined
+                  : dark
+                  ? 'darkgrey'
+                  : 'lightblue',
               }}
             >
-              <View
+              <ImageBackground
+                source={{ uri: personDetails?.person_view?.person.banner }}
+                resizeMode={'cover'}
                 style={{
-                  ...styles.userCardContainer,
                   flex: 1,
+                  justifyContent: 'center',
                 }}
               >
                 <View
                   style={{
+                    ...styles.userCardContainer,
                     flex: 1,
-                    justifyContent: 'center',
                   }}
                 >
-                  {selectedAccount?.username ? (
-                    <Avatar.Image size={64} source={{ uri: personDetails?.person_view?.person.avatar }} />
-                  ) : (
-                    <Icon size={64} source={'account-circle-outline'} />
-                  )}
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {selectedAccount?.username ? (
+                      <Avatar.Image size={64} source={{ uri: personDetails?.person_view?.person.avatar }} />
+                    ) : (
+                      <Icon size={64} source={'account-circle-outline'} />
+                    )}
+                  </View>
+                  <Text
+                    variant="titleSmall"
+                    style={{
+                      textShadowColor: 'white',
+                      textShadowOffset: { width: -1, height: 1 },
+                      textShadowRadius: 10,
+                    }}
+                  >
+                    {selectedAccount.username
+                      ? `@${selectedAccount.username}@${selectedAccount.instance}`
+                      : `Anonymous (${selectedAccount.instance})`}
+                  </Text>
                 </View>
-                <Text
-                  variant="titleSmall"
-                  style={{
-                    textShadowColor: 'white',
-                    textShadowOffset: { width: -1, height: 1 },
-                    textShadowRadius: 10,
-                  }}
-                >
-                  {selectedAccount.username
-                    ? `@${selectedAccount.username}@${selectedAccount.instance}`
-                    : `Anonymous (${selectedAccount.instance})`}
-                </Text>
-              </View>
-            </ImageBackground>
-          </View>
+              </ImageBackground>
+            </View>
 
-          <View>
-            <Drawer.Section title={'Account'} showDivider={false}>
-              {accounts.map(account => (
-                <Drawer.Item
-                  key={account.username ? `@${account.username}@${account.instance}` : account.instance}
-                  label={account.username ? `@${account.username}@${account.instance}` : account.instance}
-                  onPress={() => handleSelectAccount(account)}
-                  icon={
-                    selectedAccount?.username === account.username && selectedAccount?.instance === account.instance
-                      ? 'account-circle'
-                      : 'account-circle-outline'
-                  }
-                />
-              ))}
-              <Drawer.Item label="Add account" onPress={handleNavigateLogin} icon="account-plus-outline" />
-              <Drawer.Item label={'Logout'} icon={'logout'} onPress={() => showDialog()} />
-            </Drawer.Section>
-            <Drawer.Section title={'Preferences'} showDivider={false}>
-              {/*<Drawer.Item label="Dark theme" />*/}
-              {/*<Drawer.Item label="Enable NSFW" />*/}
-              <Drawer.Item label="Settings" icon="cog" />
-              <Drawer.Item label="Debug" icon="bug-outline" onPress={handleNavigateDebug} />
-            </Drawer.Section>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+            <View>
+              <Drawer.Section title={'Account'} showDivider={false}>
+                {accounts.map(account => (
+                  <Drawer.Item
+                    key={account.username ? `@${account.username}@${account.instance}` : account.instance}
+                    label={account.username ? `@${account.username}@${account.instance}` : account.instance}
+                    onPress={() => handleSelectAccount(account)}
+                    icon={
+                      selectedAccount?.username === account.username && selectedAccount?.instance === account.instance
+                        ? 'account-circle'
+                        : 'account-circle-outline'
+                    }
+                  />
+                ))}
+                <Drawer.Item label="Add account" onPress={handleNavigateLogin} icon="account-plus-outline" />
+                <Drawer.Item label={'Logout'} icon={'logout'} onPress={() => showDialog()} />
+              </Drawer.Section>
+              <Drawer.Section title={'Preferences'} showDivider={false}>
+                {/*<Drawer.Item label="Dark theme" />*/}
+                {/*<Drawer.Item label="Enable NSFW" />*/}
+                <Drawer.Item label="Settings" icon="cog" />
+                <Drawer.Item label="Debug" icon="bug-outline" onPress={handleNavigateDebug} />
+              </Drawer.Section>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Surface>
     </>
   );
 }
