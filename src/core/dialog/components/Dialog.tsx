@@ -12,12 +12,18 @@ export interface IUIDialogOptions {
 interface IUIDialogProps extends IUIDialogOptions {
   visible: boolean;
   hideDialog: () => void;
+  onDismiss?: () => void;
 }
 
-export function UIDialog({ visible, hideDialog, actions, content, title, dialogProps }: IUIDialogProps) {
+export function UIDialog({ visible, hideDialog, actions, content, title, dialogProps, onDismiss }: IUIDialogProps) {
+  const handleDismiss = React.useCallback(() => {
+    onDismiss?.();
+    hideDialog();
+  }, [onDismiss, hideDialog]);
+
   return (
     <Portal>
-      <Dialog {...dialogProps} visible={visible} onDismiss={hideDialog}>
+      <Dialog {...dialogProps} visible={visible} onDismiss={handleDismiss}>
         {title && <Dialog.Title>{title}</Dialog.Title>}
         {content && <Dialog.Content>{typeof content == 'function' ? content?.(hideDialog) : content}</Dialog.Content>}
         {actions && <Dialog.Actions>{actions(hideDialog)}</Dialog.Actions>}

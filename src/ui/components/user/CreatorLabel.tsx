@@ -1,10 +1,10 @@
 ﻿import { Text, useTheme } from 'react-native-paper';
 import React from 'react';
-import type { Person } from 'lemmy-js-client';
 import { useAccountsStore } from '../../../stores/AccountsStore';
 import { usePersonDetails } from '../../../api/lemmy';
 import { StyleSheet, View } from 'react-native';
 import Icon from 'react-native-paper/src/components/Icon';
+import type { Person } from 'lemmy-js-client';
 
 export interface CreatorLabelProps {
   person: Person;

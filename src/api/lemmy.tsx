@@ -6,10 +6,10 @@ import type { Account } from '../stores/AccountsStore';
 import { useAccountsStore } from '../stores/AccountsStore';
 import React from 'react';
 import type { SWRConfiguration } from 'swr';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { usePostsStore } from '../stores/PostsStore';
 import { useCommentsStore } from '../stores/CommentsStore';
-import { mutate } from 'swr';
+import { sessionExpiredForm } from '../ui/UI';
 
 const infiniteSWRCacheKeyPrefix = '$inf$@';
 const SWRCacheKeyPrefix = '@';
@@ -52,7 +52,11 @@ export function useLemmyClient() {
     [baseUrl, selectedAccount]
   );
 
-  return { baseUrl, client, jwt: selectedAccount?.jwt };
+  return {
+    baseUrl,
+    jwt: selectedAccount?.jwt,
+    client: lemmyClientInterceptor(client),
+  };
 }
 
 const postsBaseKey = 'posts';
@@ -91,7 +95,6 @@ function useRefreshCache(base: string) {
     () =>
       mutate(
         key => {
-          console.log(key);
           if (typeof key === 'string') {
             return (
               key.startsWith(`${infiniteSWRCacheKeyPrefix}"${base}`) || key.startsWith(`${SWRCacheKeyPrefix}"${base}`)
@@ -181,4 +184,56 @@ export function usePersonDetails(account?: Pick<Account, 'username' | 'instance'
       username: username!,
     });
   });
+}
+
+function lemmyClientInterceptor(client: LemmyHttp) {
+  return new Proxy(client, {
+    get(target, prop, receiver) {
+      const reflection = Reflect.get(target, prop, receiver);
+      if (typeof reflection !== 'function') return reflection;
+
+      // @ts-ignore
+      return (...args) => {
+        const promise = reflection.apply(target, args);
+
+        if (promise.then !== undefined) {
+          return promise.then((response: any) => {
+            const user = useAccountsStore.getState().selectedAccount;
+
+            if (response.error === 'not_logged_in' && user?.jwt) {
+              return sessionExpiredForm().then(sessionExpiredFormResponse => {
+                if (sessionExpiredFormResponse.password && user?.username) {
+                  return client
+                    .login({
+                      username_or_email: user.username,
+                      password: sessionExpiredFormResponse.password,
+                    })
+                    .then(loginResponse => {
+                      if (loginResponse.jwt) {
+                        useAccountsStore.getState().setSelectedAccount({
+                          ...useAccountsStore.getState().selectedAccount,
+                          jwt: loginResponse.jwt,
+                        });
+
+                        const newArgs: typeof args = JSON.parse(JSON.stringify(args));
+                        if (newArgs?.[0]?.auth) newArgs[0].auth = loginResponse.jwt;
+                        return reflection.apply(target, newArgs);
+                      }
+
+                      throw new Error('Could not login, wrong credentials?');
+                    });
+                }
+
+                throw new Error('Could not log in.');
+              });
+            }
+
+            return response;
+          });
+        }
+
+        return promise;
+      };
+    },
+  }) as LemmyHttp;
 }

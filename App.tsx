@@ -16,6 +16,8 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 import { DebugScreen } from './src/debug/DebugScreen';
 import { CommunityScreen } from './src/Community/components/CommunityScreen';
 import { SWRCache } from './src/SWRCache';
+import { useDialogStore } from './src/stores/DialogStore';
+import { UIDialog } from './src/core/dialog/components/Dialog';
 
 const Drawer = createDrawerNavigator<NavigationList>();
 
@@ -37,34 +39,46 @@ export default function App() {
 
 function AppWithTheme() {
   const theme = useTheme();
+  const dialog = useDialogStore();
 
   return (
-    <NavigationContainer
-      theme={{
-        dark: theme.dark,
-        colors: {
-          border: theme.colors.background,
-          background: theme.colors.background,
-          card: theme.colors.background,
-          notification: theme.colors.outline,
-          primary: theme.colors.primary,
-          text: theme.colors.onBackground,
-        },
-      }}
-    >
-      <Drawer.Navigator
-        initialRouteName={APP_NAME}
-        drawerContent={NavigationDrawer}
-        screenOptions={{
-          header: props => <CustomNavigationBar {...props} />,
+    <>
+      <UIDialog
+        hideDialog={dialog.hideDialog}
+        onDismiss={dialog.onDismiss}
+        visible={dialog.visible}
+        dialogProps={dialog.dialogProps}
+        content={dialog.content}
+        actions={dialog.actions}
+        title={dialog.title}
+      />
+      <NavigationContainer
+        theme={{
+          dark: theme.dark,
+          colors: {
+            border: theme.colors.background,
+            background: theme.colors.background,
+            card: theme.colors.background,
+            notification: theme.colors.outline,
+            primary: theme.colors.primary,
+            text: theme.colors.onBackground,
+          },
         }}
       >
-        <Drawer.Screen name={APP_NAME} component={HomeScreen} />
-        <Drawer.Screen name="Login" component={LoginScreen} />
-        <Drawer.Screen name="Post" component={PostScreen} />
-        <Drawer.Screen name="Community" component={CommunityScreen} />
-        <Drawer.Screen name="Debug" component={DebugScreen} />
-      </Drawer.Navigator>
-    </NavigationContainer>
+        <Drawer.Navigator
+          initialRouteName={APP_NAME}
+          drawerContent={NavigationDrawer}
+          screenOptions={{
+            header: props => <CustomNavigationBar {...props} />,
+          }}
+        >
+          <Drawer.Screen name={APP_NAME} component={HomeScreen} />
+          <Drawer.Screen name="Login" component={LoginScreen} />
+          <Drawer.Screen name="Post" component={PostScreen} />
+          <Drawer.Screen name="Community" component={CommunityScreen} />
+          <Drawer.Screen name="Debug" component={DebugScreen} />
+        </Drawer.Navigator>
+      </NavigationContainer>
+    </>
   );
 }

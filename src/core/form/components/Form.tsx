@@ -1,4 +1,5 @@
 ﻿import React, { Fragment } from 'react';
+import type { UseFormHandleSubmit } from 'react-hook-form';
 import { useForm, Controller } from 'react-hook-form';
 import { Animated, SafeAreaView, StyleSheet, View } from 'react-native';
 import { Button, Checkbox, HelperText, Text, TextInput } from 'react-native-paper';
@@ -30,6 +31,7 @@ interface FormProps {
 export interface FormRef {
   renderSubmitButton(): React.ReactNode;
   renderCancelButton(): React.ReactNode;
+  handleSubmit: UseFormHandleSubmit<object>;
 }
 
 export const Form = React.forwardRef<FormRef, FormProps>(function Form(
@@ -58,6 +60,7 @@ export const Form = React.forwardRef<FormRef, FormProps>(function Form(
   React.useImperativeHandle(ref, () => ({
     renderSubmitButton,
     renderCancelButton,
+    handleSubmit: handleSubmit,
   }));
 
   function renderField(entry: FormSchemaEntry, value, onChange, onBlur) {
