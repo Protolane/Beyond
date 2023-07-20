@@ -51,7 +51,7 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
           size={iconSize}
           icon={'arrow-up'}
           counter={upvotes}
-          disabled={isDisabled || comment.comment.deleted}
+          disabled={isDisabled || comment?.comment.deleted}
         />
         {downvotesAllowed && (
           <CounterButton
@@ -60,7 +60,7 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
             size={iconSize}
             icon={'arrow-down'}
             counter={downvotes}
-            disabled={isDisabled || comment.comment.deleted}
+            disabled={isDisabled || comment?.comment.deleted}
           />
         )}
       </View>
@@ -74,20 +74,20 @@ export function CommentActions({ comment, replyToComment }: CommentActionsProps)
           onPress={handlePressMore}
           size={iconSize}
           icon={'dots-vertical'}
-          disabled={comment.comment.deleted}
+          disabled={comment?.comment.deleted}
         />
         {/*<IconButton onPress={handlePressGoToTop} size={iconSize} icon={'chevron-up'} />*/}
         <IconButton
           onPress={handlePressSave}
           size={iconSize}
           icon={isSaved ? 'heart' : 'heart-outline'}
-          disabled={isDisabled || comment.comment.deleted}
+          disabled={isDisabled || comment?.comment.deleted}
         />
         <IconButton
           onPress={handlePressReply}
           size={iconSize}
           icon={'reply'}
-          disabled={isDisabled || comment.comment.deleted}
+          disabled={isDisabled || comment?.comment.deleted}
         />
       </View>
     </>

@@ -28,6 +28,7 @@ export const swrDefaults: SWRConfiguration = {
   refreshWhenHidden: false,
   // retry on errors (including timeouts)
   shouldRetryOnError: true,
+  loadingTimeout: 6000,
 };
 
 export function useLemmyClient() {

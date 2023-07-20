@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Dimensions, Image, View } from 'react-native';
 import type { PostCardProps } from './PostCard';
-import { ActivityIndicator } from 'react-native-paper';
+import { ActivityIndicator, Text } from 'react-native-paper';
 import useSWR from 'swr';
 import { getImagePostURL } from '../../hooks/usePostType';
 
@@ -46,6 +46,7 @@ export function PostImage({ postView, inView }: PostCardProps & { inView?: boole
         }}
       />
     );
+
   return (
     <Image
       source={{

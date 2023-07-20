@@ -74,7 +74,13 @@ function AppWithTheme() {
         >
           <Drawer.Screen name={APP_NAME} component={HomeScreen} />
           <Drawer.Screen name="Login" component={LoginScreen} />
-          <Drawer.Screen name="Post" component={PostScreen} />
+          <Drawer.Screen
+            options={{
+              unmountOnBlur: true,
+            }}
+            name="Post"
+            component={PostScreen}
+          />
           <Drawer.Screen name="Community" component={CommunityScreen} />
           <Drawer.Screen name="Debug" component={DebugScreen} />
         </Drawer.Navigator>

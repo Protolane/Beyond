@@ -10,7 +10,7 @@ import { StyledMarkdown } from '../StyledMarkdown';
 
 export interface CommentProps {
   comment: CommentView;
-  comments: CommentView[];
+  comments?: CommentView[];
 }
 
 function DeletedCommentContent() {
@@ -47,14 +47,14 @@ const styles = StyleSheet.create({
 });
 
 interface CommentThreadProps {
-  comments: CommentView[];
+  comments?: CommentView[];
   parentCommentId: number;
 }
 
 function CommentThread({ parentCommentId, comments }: CommentThreadProps) {
   const threads = React.useMemo(
     () =>
-      comments.filter(comment => {
+      comments?.filter(comment => {
         const path = comment.comment.path.split('.');
         return path[path.length - 2] == parentCommentId.toString(10);
       }),
@@ -64,7 +64,7 @@ function CommentThread({ parentCommentId, comments }: CommentThreadProps) {
   // TODO: make collapsable
   return (
     <View>
-      {threads.map(t => (
+      {threads?.map(t => (
         <Comment key={t.comment.id} comment={t} comments={comments} />
       ))}
     </View>

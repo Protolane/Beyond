@@ -9,6 +9,7 @@ import { useLogoutDialog } from '../../hooks/useLogoutDialog';
 import Icon from 'react-native-paper/src/components/Icon';
 
 const userCardHeight = 180;
+const version = require('../../../../app.json').expo.version;
 
 export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
   const { accounts, selectedAccount, setSelectedAccount, removeAccount } = useAccountsStore(state => ({
@@ -118,6 +119,7 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
                 {/*<Drawer.Item label="Enable NSFW" />*/}
                 <Drawer.Item label="Settings" icon="cog" />
                 <Drawer.Item label="Debug" icon="bug-outline" onPress={handleNavigateDebug} />
+                <Drawer.Item label={`Beyond v${version}`} />
               </Drawer.Section>
             </View>
           </ScrollView>

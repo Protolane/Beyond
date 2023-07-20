@@ -1,4 +1,4 @@
-﻿import { usePosts } from '../../api/lemmy';
+﻿import { usePosts, useRefreshPostsCache } from '../../api/lemmy';
 import React from 'react';
 import type { PostView } from 'lemmy-js-client';
 import { ActivityIndicator } from 'react-native-paper';
@@ -10,6 +10,7 @@ export interface PostsScreenProps {
 
 export function PostsScreen({ communityName }: PostsScreenProps) {
   const { data, error, size, setSize, isLoading } = usePosts(communityName);
+  const { refresh } = useRefreshPostsCache();
   const [internalSize, setInternalSize] = React.useState(2);
 
   React.useEffect(() => {
@@ -25,6 +26,15 @@ export function PostsScreen({ communityName }: PostsScreenProps) {
     [isLoading, data]
   );
 
+  const handleRefresh = React.useCallback(
+    async function handleRefresh() {
+      if (isLoading || !data) return;
+      await refresh();
+      setInternalSize(2);
+    },
+    [isLoading, data, refresh]
+  );
+
   const posts = React.useMemo(() => {
     return data?.reduce(
       (acc, curr) => [
@@ -37,6 +47,5 @@ export function PostsScreen({ communityName }: PostsScreenProps) {
     );
   }, [data]);
 
-  if (!data || !posts) return <ActivityIndicator />;
-  return <PostsView posts={posts} onLoadMore={handleLoadMore} />;
+  return <PostsView posts={posts} onLoadMore={handleLoadMore} onRefresh={handleRefresh} />;
 }
