@@ -20,7 +20,7 @@ export function CreatorLabel({ person, deleted, isPostOwner }: CreatorLabelProps
 
   const { data: personDetails } = usePersonDetails(selectedAccount);
 
-  const isCurrentUser = personDetails?.person_view.person.id === person.id;
+  const isCurrentUser = personDetails?.person_view?.person.id === person.id;
 
   const creatorInstance = person.actor_id.split('/u/')[0].split('//')[1];
   const creatorFullName = `@${person.name}@${creatorInstance}`;
