@@ -1,10 +1,10 @@
 ﻿import type { DrawerScreenProps } from '@react-navigation/drawer';
 import type { NavigationList } from '../ui/NavigationList';
-import { Animated, SafeAreaView, View } from 'react-native';
+import { View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
-import ScrollView = Animated.ScrollView;
 import { SWRCache } from '../SWRCache';
 import { useRefreshCommentsCache, useRefreshPostsCache } from '../api/lemmy';
+import Logger from '../logger/Logger';
 
 function stringifyMap(map) {
   let str = '';
@@ -25,6 +25,18 @@ export function DebugScreen({ navigation }: DrawerScreenProps<NavigationList, 'D
     });
   }
 
+  function testLogSubmission() {
+    Logger.info('Test log submission from Logger.info');
+    Logger.error('Test log submission from Logger.error');
+    Logger.warn('Test log submission from Logger.warn');
+    Logger.debug('Test log submission from Logger.debug');
+
+    console.log('Test log submission from console.log');
+    console.warn('Test log submission from console.warn');
+    console.error('Test log submission from console.error');
+    console.debug('Test log submission from console.debug');
+  }
+
   const { refresh: refreshComments } = useRefreshCommentsCache();
   const { refresh: refreshPosts } = useRefreshPostsCache();
 
@@ -38,6 +50,8 @@ export function DebugScreen({ navigation }: DrawerScreenProps<NavigationList, 'D
       <Button onPress={() => printSWRCache()}>Print to console</Button>
       <Button onPress={() => refreshPosts()}>Clear Posts Cache</Button>
       <Button onPress={() => refreshComments()}>Clear Comments Cache</Button>
+      <Text>Logger</Text>
+      <Button onPress={() => testLogSubmission()}>Test log submission</Button>
     </View>
   );
 }

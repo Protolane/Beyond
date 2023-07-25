@@ -18,10 +18,13 @@ import { CommunityScreen } from './src/Community/components/CommunityScreen';
 import { SWRCache } from './src/SWRCache';
 import { useDialogStore } from './src/stores/DialogStore';
 import { UIDialog } from './src/core/dialog/components/Dialog';
+import { initLogger } from './src/logger/Logger';
 
 const Drawer = createDrawerNavigator<NavigationList>();
 
 export default function App() {
+  initLogger();
+
   return (
     <SWRConfig
       value={{

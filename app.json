@@ -2,7 +2,7 @@
   "expo": {
     "name": "Beyond",
     "slug": "fediverse-client",
-    "version": "1.0.7.1",
+    "version": "1.0.8.1-alpha",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "software.protolane.fediverseclient",
-      "versionCode": 8
+      "versionCode": 11
     },
     "web": {
       "favicon": "./assets/favicon.png"
