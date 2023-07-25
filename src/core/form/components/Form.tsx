@@ -2,7 +2,7 @@
 import type { UseFormHandleSubmit } from 'react-hook-form';
 import { useForm, Controller } from 'react-hook-form';
 import { Animated, SafeAreaView, StyleSheet, View } from 'react-native';
-import { Button, Checkbox, HelperText, Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Button, Checkbox, HelperText, Text, TextInput } from 'react-native-paper';
 import ScrollView = Animated.ScrollView;
 
 // TODO: fix typing
@@ -26,6 +26,7 @@ interface FormProps {
   onSubmit?(values: object): void;
   onCancel?(): void;
   noButtons?: boolean;
+  isBusy?: boolean;
 }
 
 export interface FormRef {
@@ -34,8 +35,16 @@ export interface FormRef {
   handleSubmit: UseFormHandleSubmit<object>;
 }
 
+export interface ErrorType {
+  type: string;
+  message: string;
+  ref: {
+    name: string;
+  };
+}
+
 export const Form = React.forwardRef<FormRef, FormProps>(function Form(
-  { schema, defaultValues, onSubmit, onCancel, noButtons },
+  { schema, defaultValues, onSubmit, onCancel, noButtons, isBusy },
   ref
 ) {
   const {
@@ -50,11 +59,19 @@ export const Form = React.forwardRef<FormRef, FormProps>(function Form(
   const handleCancel = () => onCancel?.();
 
   function renderCancelButton() {
-    return <Button onPress={handleCancel}>Cancel</Button>;
+    return (
+      <Button disabled={isBusy} onPress={handleCancel}>
+        Cancel
+      </Button>
+    );
   }
 
   function renderSubmitButton() {
-    return <Button onPress={handleSubmit(handleSubmitForm)}>Submit</Button>;
+    return (
+      <Button disabled={isBusy} onPress={handleSubmit(handleSubmitForm)}>
+        Submit
+      </Button>
+    );
   }
 
   React.useImperativeHandle(ref, () => ({
@@ -63,12 +80,17 @@ export const Form = React.forwardRef<FormRef, FormProps>(function Form(
     handleSubmit: handleSubmit,
   }));
 
+  function renderError(error: ErrorType) {
+    if (error.type === 'required') return <HelperText type="error">This field required</HelperText>;
+  }
+
   function renderField(entry: FormSchemaEntry, value, onChange, onBlur) {
     switch (entry.type) {
       case FieldTypes.Text:
         return (
           <TextInput
             {...entry.props}
+            disabled={isBusy}
             label={entry.label}
             onBlur={onBlur}
             onChangeText={onChange}
@@ -80,6 +102,7 @@ export const Form = React.forwardRef<FormRef, FormProps>(function Form(
         return (
           <Checkbox.Item
             {...entry.props}
+            disabled={isBusy}
             label={entry.label}
             status={value ? 'checked' : 'unchecked'}
             onPress={() => onChange(!value)}
@@ -101,7 +124,7 @@ export const Form = React.forwardRef<FormRef, FormProps>(function Form(
                   name={entry.name}
                   render={({ field: { onChange, onBlur, value } }) => renderField(entry, value, onChange, onBlur)}
                 />
-                {errors[entry.name] && <HelperText type="error">Error TODO</HelperText>}
+                {errors[entry.name] && <HelperText type="error">{renderError(errors[entry.name])}</HelperText>}
               </Fragment>
             );
           })}
@@ -111,6 +134,7 @@ export const Form = React.forwardRef<FormRef, FormProps>(function Form(
       {!noButtons && (
         <View style={style.buttons}>
           {renderCancelButton()}
+          {isBusy && <ActivityIndicator />}
           {renderSubmitButton()}
         </View>
       )}

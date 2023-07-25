@@ -73,7 +73,13 @@ function AppWithTheme() {
           }}
         >
           <Drawer.Screen name={APP_NAME} component={HomeScreen} />
-          <Drawer.Screen name="Login" component={LoginScreen} />
+          <Drawer.Screen
+            options={{
+              unmountOnBlur: true,
+            }}
+            name="Login"
+            component={LoginScreen}
+          />
           <Drawer.Screen
             options={{
               unmountOnBlur: true,
