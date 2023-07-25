@@ -1,5 +1,5 @@
 ﻿import { Avatar, Drawer, Surface, Text, useTheme } from 'react-native-paper';
-import { Animated, Image, ImageBackground, SafeAreaView, StyleSheet, View } from 'react-native';
+import { Animated, ImageBackground, SafeAreaView, StyleSheet, View } from 'react-native';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer/src/types';
 import type { Account } from '../../../stores/AccountsStore';
 import { useAccountsStore } from '../../../stores/AccountsStore';
@@ -7,6 +7,8 @@ import { usePersonDetails } from '../../../api/lemmy';
 import ScrollView = Animated.ScrollView;
 import { useLogoutDialog } from '../../hooks/useLogoutDialog';
 import Icon from 'react-native-paper/src/components/Icon';
+import * as Linking from 'expo-linking';
+import { useFiltersStore } from '../../../stores/FiltersStore';
 
 const userCardHeight = 180;
 const version = require('../../../../app.json').expo.version;
@@ -19,6 +21,11 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
     removeAccount: state.removeAccount,
   }));
 
+  const { nsfw, setNsfw } = useFiltersStore(state => ({
+    nsfw: state.nsfw,
+    setNsfw: state.setNsfw,
+  }));
+
   const { data: personDetails } = usePersonDetails(selectedAccount);
 
   const { dark } = useTheme();
@@ -29,6 +36,10 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
 
   function handleNavigateDebug() {
     navigation.navigate('Debug');
+  }
+
+  function handleNavigateSupport() {
+    Linking.openURL('https://patreon.com/beyond_for_lemmy');
   }
 
   function handleSelectAccount(account: Account) {
@@ -116,8 +127,13 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
               </Drawer.Section>
               <Drawer.Section title={'Preferences'} showDivider={false}>
                 {/*<Drawer.Item label="Dark theme" />*/}
-                {/*<Drawer.Item label="Enable NSFW" />*/}
-                <Drawer.Item label="Settings" icon="cog" />
+                <Drawer.Item
+                  label={(nsfw ? 'Disable' : 'Enable') + ' NSFW'}
+                  onPress={() => setNsfw(!nsfw)}
+                  icon={!nsfw ? 'circle-edit-outline' : 'circle-box'}
+                />
+                {/*<Drawer.Item label="Settings" icon="cog" />*/}
+                <Drawer.Item label="Support" icon="patreon" onPress={handleNavigateSupport} />
                 <Drawer.Item label="Debug" icon="bug-outline" onPress={handleNavigateDebug} />
                 <Drawer.Item label={`Beyond v${version}`} />
               </Drawer.Section>

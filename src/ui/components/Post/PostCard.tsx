@@ -1,4 +1,4 @@
-﻿import { ActivityIndicator, Badge, Card, Text, TouchableRipple, useTheme } from 'react-native-paper';
+﻿import { Badge, Card, TouchableRipple, useTheme } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import { PostName } from './PostName';
