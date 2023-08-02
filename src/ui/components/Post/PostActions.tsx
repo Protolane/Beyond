@@ -249,6 +249,6 @@ function usePostActions(postView?: PostView, writeComment?: boolean) {
     upvotes,
     downvotes,
     comments,
-    downvotesAllowed: site?.site_view.local_site.enable_downvotes,
+    downvotesAllowed: site?.site_view?.local_site?.enable_downvotes ?? true,
   };
 }

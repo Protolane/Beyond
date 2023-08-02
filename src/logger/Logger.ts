@@ -38,8 +38,8 @@ const dataDogLogger = (level: string, message: string) => {
   fetch(
     `https://http-intake.logs.us5.datadoghq.com/api/v2/logs?dd-api-key=${apiKey}&ddsource=${source}&service=${service}&host=${host}`,
     requestOptions
-  ).catch(error => {
-    console.error('Error sending log to DataDog:', error);
+  ).catch(() => {
+    // do nothing
   });
 };
 

@@ -99,13 +99,13 @@ function useCommentActions(comment?: CommentView) {
   const { data, mutate } = useComments(comment?.post?.id);
   const { data: postData, mutate: postMutate } = usePosts();
 
-  const pageIndex = data?.findIndex(c => c.comments.find(c => c.comment.id === comment?.comment?.id));
+  const pageIndex = data?.findIndex(c => c?.comments.find(c => c.comment.id === comment?.comment?.id));
   const commentIndex =
     pageIndex !== undefined
-      ? data?.[pageIndex].comments.findIndex(c => c.comment.id === comment?.comment?.id)
+      ? data?.[pageIndex]?.comments.findIndex(c => c.comment.id === comment?.comment?.id)
       : undefined;
   const commentResponse =
-    pageIndex !== undefined && commentIndex !== undefined ? data?.[pageIndex].comments[commentIndex] : undefined;
+    pageIndex !== undefined && commentIndex !== undefined ? data?.[pageIndex]?.comments[commentIndex] : undefined;
 
   const postPageIndex = postData?.findIndex(page => page?.posts.find(p => p.post.id === comment?.post?.id));
   const postIndex =
