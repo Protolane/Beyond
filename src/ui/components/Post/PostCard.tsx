@@ -28,12 +28,14 @@ export function PostCard({ postView, inView }: PostCardProps & { inView?: boolea
           <PostName postView={postView} />
 
           <View style={styles.tags}>
-            <Badge>{postType}</Badge>
+            {postType.map((tag, index) => (
+              <Badge key={index}>{tag}</Badge>
+            ))}
             {postView.post.nsfw && <Badge>NSFW</Badge>}
             {postView.post.locked && <Badge>Locked</Badge>}
             {image?.toLowerCase().endsWith('.gif') && <Badge>GIF</Badge>}
           </View>
-          {postType === 'link' && (
+          {postType.includes('link') && (
             <View style={styles.tags}>
               <A style={{ color: colors.tertiary }} href={url}>
                 {url}

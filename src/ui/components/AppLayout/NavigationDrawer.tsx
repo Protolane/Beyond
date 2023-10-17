@@ -9,11 +9,18 @@ import { useLogoutDialog } from '../../hooks/useLogoutDialog';
 import Icon from 'react-native-paper/src/components/Icon';
 import * as Linking from 'expo-linking';
 import { useFiltersStore } from '../../../stores/FiltersStore';
+import React from 'react';
 
 const userCardHeight = 180;
 const version = require('../../../../app.json').expo.version;
 
 export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
+  const [isDebugMenuVisible, setIsDebugMenuVisible] = React.useState<number>(0);
+
+  function tryEnableDebug() {
+    setIsDebugMenuVisible(isDebugMenuVisible + 1);
+  }
+
   const { accounts, selectedAccount, setSelectedAccount, removeAccount } = useAccountsStore(state => ({
     selectedAccount: state.selectedAccount,
     setSelectedAccount: state.setSelectedAccount,
@@ -36,6 +43,10 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
 
   function handleNavigateDebug() {
     navigation.navigate('Debug');
+  }
+
+  function handleNavigateSettings() {
+    navigation.navigate('Settings');
   }
 
   function handleNavigateSupport() {
@@ -132,10 +143,12 @@ export function NavigationDrawer({ navigation }: DrawerContentComponentProps) {
                   onPress={() => setNsfw(!nsfw)}
                   icon={!nsfw ? 'circle-edit-outline' : 'circle-box'}
                 />
-                {/*<Drawer.Item label="Settings" icon="cog" />*/}
+                <Drawer.Item label="Settings" icon="cog" onPress={handleNavigateSettings} />
                 <Drawer.Item label="Support" icon="patreon" onPress={handleNavigateSupport} />
-                <Drawer.Item label="Debug" icon="bug-outline" onPress={handleNavigateDebug} />
-                <Drawer.Item label={`Beyond v${version}`} />
+                {isDebugMenuVisible > 5 && (
+                  <Drawer.Item label="Debug" icon="bug-outline" onPress={handleNavigateDebug} />
+                )}
+                <Drawer.Item label={`Beyond v${version}`} onPress={() => tryEnableDebug()} />
               </Drawer.Section>
             </View>
           </ScrollView>

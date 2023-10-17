@@ -19,7 +19,9 @@ export const swrDefaults: SWRConfiguration = {
   revalidateOnFocus: false,
   // enable or disable automatic revalidation when component is mounted
   // (by default revalidation occurs on mount when fallbackData is not set, use this flag to force behavior)
-  revalidateOnMount: undefined,
+  revalidateOnMount: true,
+  revalidateIfStale: false,
+  keepPreviousData: false,
   // automatically revalidate when the browser regains a network connection (via navigator.onLine)
   revalidateOnReconnect: false,
   // polling when the window is invisible

@@ -19,6 +19,9 @@ import { SWRCache } from './src/SWRCache';
 import { useDialogStore } from './src/stores/DialogStore';
 import { UIDialog } from './src/core/dialog/components/Dialog';
 import { initLogger } from './src/logger/Logger';
+import { SettingsScreen } from './src/settings/components/SettingsScreen';
+import { PostFilterSettingsScreen } from './src/pages/PostFilterSettingsScreen';
+import { CreateEditFilterScreen } from './src/pages/CreateEditFilterScreen';
 
 const Drawer = createDrawerNavigator<NavigationList>();
 
@@ -92,6 +95,15 @@ function AppWithTheme() {
           />
           <Drawer.Screen name="Community" component={CommunityScreen} />
           <Drawer.Screen name="Debug" component={DebugScreen} />
+          <Drawer.Screen name="Settings" component={SettingsScreen} />
+          <Drawer.Screen name="PostFilterSettingsScreen" component={PostFilterSettingsScreen} />
+          <Drawer.Screen
+            name="CreateEditFilterScreen"
+            component={CreateEditFilterScreen}
+            options={{
+              unmountOnBlur: true,
+            }}
+          />
         </Drawer.Navigator>
       </NavigationContainer>
     </>
