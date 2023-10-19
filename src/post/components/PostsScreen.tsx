@@ -4,7 +4,10 @@ import type { PostView } from 'lemmy-js-client';
 import { PostsView } from '../../ui/components/Post/PostsView';
 import { useFiltersStore } from '../../stores/FiltersStore';
 import type { PostType } from '../../ui/hooks/usePostType';
-import { getPostType } from '../../ui/hooks/usePostType';
+import { getImagePostURL, getPostType } from '../../ui/hooks/usePostType';
+import type { ImageSize } from '../../ui/components/Post/PostImage';
+import { Dimensions, Image } from 'react-native';
+import { imagesMap } from '../../ui/components/Post/PostImage';
 
 export interface PostsScreenProps {
   communityName?: string;
@@ -26,6 +29,7 @@ export function PostsScreen({ communityName }: PostsScreenProps) {
 
   const handleLoadMore = React.useCallback(
     function handleLoadMore() {
+      console.debug('handleLoadMore');
       if (isLoading || !data) return;
       setInternalSize(data.length + 1);
     },
@@ -58,8 +62,6 @@ export function PostsScreen({ communityName }: PostsScreenProps) {
       ?.filter(post => {
         const postTypes = getPostType(post);
         return filters?.every(filter => {
-          console.log(filter);
-
           if (!post.post.nsfw && filter.applyOnlyToNSFW === true) return true;
 
           const filterType: PostType[] = [];
@@ -80,15 +82,11 @@ export function PostsScreen({ communityName }: PostsScreenProps) {
               filter.titleKeyWordsExclude?.every(word => !post.post.name.toLowerCase().includes(word.toLowerCase())) ===
                 true;
 
-          console.log('titleKeyWordsExclude', status, filter.titleKeyWordsExclude, post.post.name);
-
           if (filter.titleKeyWordsContains)
             status =
               status &&
               filter.titleKeyWordsContains?.every(word => post.post.name.toLowerCase().includes(word.toLowerCase())) ===
                 true;
-
-          console.log('titleKeyWordsContains', status, filter.titleKeyWordsContains, post.post.name);
 
           if (filter.titleRegexExclude) {
             status = status && !new RegExp(filter.titleRegexExclude).test(post.post.name);
@@ -145,14 +143,35 @@ export function PostsScreen({ communityName }: PostsScreenProps) {
 
           // TODO: languages
 
-          console.log('final status', status, post.post.name);
-
           return status;
         });
+      })
+      .filter(post => {
+        const image = getImagePostURL(post);
+
+        if (image) {
+          if (imagesMap.has(image)) {
+            return imagesMap.get(image) !== null;
+          } else {
+            imagesMap.set(image, null);
+            Image.getSize(
+              image,
+              (width, height) => {
+                const screenWidth = Dimensions.get('window').width;
+                const proportion = (height / width) * screenWidth;
+                imagesMap.set(image, { width, height, proportion });
+              },
+              error => {
+                console.error('Failed to fetch: ' + image, error);
+              }
+            );
+            return false;
+          }
+        }
+
+        return true;
       });
   }, [data, filters, nsfw]);
-
-  console.log(posts);
 
   return <PostsView posts={posts} onLoadMore={handleLoadMore} onRefresh={handleRefresh} />;
 }

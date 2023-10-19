@@ -44,7 +44,8 @@
     "react-native-web": "~0.18.10",
     "swr": "^2.1.5",
     "winston": "3.8.2",
-    "zustand": "^4.3.8"
+    "zustand": "^4.3.8",
+    "@shopify/flash-list": "1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

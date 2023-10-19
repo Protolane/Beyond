@@ -1,34 +1,20 @@
 ﻿import React from 'react';
-import { Dimensions, Image, View } from 'react-native';
+import { Image, View } from 'react-native';
 import type { PostCardProps } from './PostCard';
 import { ActivityIndicator, Text } from 'react-native-paper';
-import useSWR from 'swr';
 import { getImagePostURL } from '../../hooks/usePostType';
 
-interface ImageSize {
+export interface ImageSize {
   width: number;
   height: number;
   proportion: number;
 }
 
-function useImageSize(uri?: string) {
-  return useSWR<ImageSize>(uri ? `image-size-${uri}` : null, () => {
-    return new Promise((resolve, reject) => {
-      if (!uri) return;
+export const imagesMap = new Map<string, ImageSize | null>();
 
-      Image.getSize(
-        uri,
-        (width, height) => {
-          const screenWidth = Dimensions.get('window').width;
-          const proportion = (height / width) * screenWidth;
-          resolve({ width, height, proportion });
-        },
-        error => {
-          reject(error);
-        }
-      );
-    });
-  });
+function useImageSize(uri?: string) {
+  if (!uri) return { data: undefined };
+  return { data: imagesMap.get(uri) };
 }
 
 export function PostImage({ postView, inView }: PostCardProps & { inView?: boolean }) {
